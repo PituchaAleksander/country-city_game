@@ -69,7 +69,4 @@ def decode_playerData(json):
     return playerData(json['nick'], json['score'], json['state'], json['city'], json['plant'], json['animal'], json['color'], json['name'])
 
 
-g=game()
-g.addAnswers(g.writeAnswer('time'))
-
 
