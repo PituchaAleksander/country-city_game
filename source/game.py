@@ -1,7 +1,7 @@
 import json
-from playerData import playerData
+from playerData import PlayerData
 
-class game:
+class Game:
 
     def __init__(self):
         self.nick = ""
@@ -11,7 +11,7 @@ class game:
         self.scoreboard = []
 
     def writeAnswer(self, time):
-        answers = playerData()
+        answers = PlayerData()
         answers.nick = self.nick
         answers.score = self.score
 
@@ -61,12 +61,16 @@ class game:
         score = json.loads(json_string, object_hook=decode_playerData)
         self.scoreboard.append(score)
 
+    def jsonToScoreBoard(self, json_string):
+        scoreboard = json.loads(json_string, object_hook=decode_playerData)
+        for i in range(0, len(scoreboard)):
+            self.addAnswers(scoreboard[i])
 
 def obj_dict(obj):
     return obj.__dict__
 
 def decode_playerData(json):
-    return playerData(json['nick'], json['score'], json['state'], json['city'], json['plant'], json['animal'], json['color'], json['name'])
+    return PlayerData(json['nick'], json['score'], json['state'], json['city'], json['plant'], json['animal'], json['color'], json['name'])
 
 
 
