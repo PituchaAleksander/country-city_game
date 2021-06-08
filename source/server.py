@@ -67,7 +67,7 @@ class CountryCityServerProtocol(asyncio.Protocol):
             response = str(task).encode()
             print("Data sent: " + str(response))
 
-            self.transport.write("200 EXISTS ".encode() + response + "\r\n".encode())
+            self.transport.write("202 EXISTS ".encode() + response + "\r\n".encode())
             self.transport.close()
         else:
             print("Room doesn't exists! Sent NOT_EXISTS.")

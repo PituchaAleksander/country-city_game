@@ -1,4 +1,5 @@
 import socket
+from game import game
 
 
 def receive(s):
@@ -10,32 +11,31 @@ def receive(s):
 
 def start_app():
     while True:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect(("localhost", 80))
+
         i = input("Co chcesz zrobić:\n"
                   "[1] Stwórz gre\n"
                   "[2] Dołącz do gry")
-        if i == '2':
+        if i == '1':
+            server.sendall("CREATE_ROOM\r\n\r\n".encode())
+            data = receive(server)
+            if "201" in data:
+                print("Podaj tego hasha innym: {}".format(data.split("CREATED")[1]))
+                #metoda dla gry host
+                break
+            else:
+                print(data)
+        elif i == '2':
             token = input("Podaj token:")
             server.sendall("JOIN {}\r\n\r\n".format(token).encode())
-        elif i == '1':
-            server.sendall("CREATE_ROOM\r\n\r\n".encode())
-        else:
-            continue
-
-        data = receive(server)
-        if "201" in data:
-            print("Podaj tego hasha innym: {}".format(data.split("CREATED")[1]))
-            return "host"
-
-        if "200" in data:
-            print(data.split("200")[0])
-            return "client"
-
-        print(data)
-        continue
+            if "202" in data:
+                print(data.split("202")[0])
+                #metoda dla gry klient
+                break
+            else:
+                print(data)
 
 
 DATA_SIZE = 12
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.connect(("localhost", 80))
-
 print(start_app())
