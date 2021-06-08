@@ -1,15 +1,20 @@
 import socket
 import asyncio
 import _thread
-from source.host import *
+from game import game
+from concurrent.futures import ThreadPoolExecutor
+from host import *
 
+DATA_SIZE = 12
 hash_room = ""
+
 
 def receive(s):
     data = b""
-    while not b"\r\n" in data:
+    while b"\r\n" not in data:
         data += s.recv(DATA_SIZE)
     return data.decode().split('\r\n')[0]
+
 
 def game_loop(s):
     _thread.start_new_thread(client_host_input, ())
@@ -21,11 +26,11 @@ def game_loop(s):
     except KeyboardInterrupt:
         pass
 
+
 def client_host_input():
     i = input("Podaj cos aby przerwac")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect(("localhost", 80))
-    print(hash_room)
     server.sendall("GAME_START {}\r\n".format(hash_room).encode())
     start_game()
 
@@ -37,19 +42,19 @@ def connect_with_host(s):
     server.connect((data[0], int(data[1])))
     server.sendall("CONNECT dupa\r\n".encode())
     while True:
-        print(receive(server))
+        if "OK" in receive(server):
+            print("Connected to host game!")
 
 
 def start_app():
     while True:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.connect(("localhost", 80))
-        print(server.getsockname())
-
         i = input("Co chcesz zrobić:\n"
                   "[1] Stwórz gre\n"
-                  "[2] Dołącz do gry")
+                  "[2] Dołącz do gry\n")
         if i == '1':
+            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server.connect(("localhost", 80))
+
             server.sendall("CREATE_ROOM\r\n".encode())
             data = receive(server)
             if "201" in data:
@@ -62,7 +67,11 @@ def start_app():
                 print(data)
         elif i == '2':
             token = input("Podaj token:")
+
+            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server.connect(("localhost", 80))
             server.sendall("JOIN {}\r\n".format(token).encode())
+
             data = receive(server)
             if "202" in data:
                 print(data)
@@ -73,5 +82,4 @@ def start_app():
                 print(data)
 
 
-DATA_SIZE = 12
-print(start_app())
+start_app()

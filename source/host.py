@@ -2,13 +2,15 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from game import game
 
-startGame = True
+startGame = False
 Game = game()
 
 clients = []
 thread_pool = ThreadPoolExecutor()
 
 def start_game():
+    global startGame
+    startGame = True
     for client in clients:
         client.transport.write(("Zaczynamy " + "\r\n").encode())
 
@@ -17,14 +19,16 @@ class HostServerProtocol(asyncio.Protocol):
         self.loop = asyncio.get_running_loop()
         print("Initiate server")
 
-    def play(self):
+    def play(self, answers):
         print("zaczynamy gre")
 
     def connect_client(self):
-        print("Poloaczono klienta")
+        print("Połączono klienta. Nazwa gracza: " + self.name + " Adres gracza: " + str(self.addr))
         for client in clients:
             client.transport.write(("Dołączył " + self.name + "\r\n").encode())
         Game.numberOfPlayers += 1
+
+        self.transport.write("200 OK\r\n".encode())
 
     def connection_made(self, transport) -> None:
         self.transport = transport
@@ -35,19 +39,19 @@ class HostServerProtocol(asyncio.Protocol):
 
     def data_received(self, data: bytes) -> None:
         message = data.decode()
-        if "CONNECT" in message:
+        if "CONNECT" in message and not startGame:
             self.name = message.split("CONNECT ")[1].split("\r\n")[0]
-            if startGame:
-                asyncio.create_task(self.async_connect_client())
+            asyncio.create_task(self.async_connect_client())
 
         if "ANSWERS" in message:
-            nick = message.split("CONNECT ")[1].split("\r\n")[0]
+            answers = message.split("ANSWERS ")[1].split("\r\n")[0]
+            asyncio.create_task(self.async_game(answers))
 
     async def async_connect_client(self):
-        task = await self.loop.run_in_executor(thread_pool, self.connect_client)
+        await self.loop.run_in_executor(thread_pool, self.connect_client)
 
-    async def async_game(self):
-        task = await self.loop.run_in_executor(thread_pool, self.play)
+    async def async_game(self, answers):
+        await self.loop.run_in_executor(thread_pool, self.play, answers)
 
 # loop = asyncio.get_event_loop()
 # coroutine = loop.create_server(HostServerProtocol, server_host, server_port)
