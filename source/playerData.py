@@ -2,11 +2,11 @@
 class playerData:
 
     def __init__(self, nick="", score=0, state="", city="", plant="", animal="", color="", name=""):
-        self.nick=nick
-        self.score=score
+        self.nick = nick
+        self.score = score
         self.state = state
         self.city = city
-        self.plant=plant
+        self.plant = plant
         self.animal = animal
         self.color = color
         self.name = name
