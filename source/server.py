@@ -64,10 +64,10 @@ class CountryCityServerProtocol(asyncio.Protocol):
     async def async_join_room(self, password):
         task = await loop.run_in_executor(thread_pool, join_room, password)
         if task:
-            response = str(task).encode()
+            response = str(task[0]) + ' ' + str(task[1])
             print("Data sent: " + str(response))
 
-            self.transport.write("202 EXISTS ".encode() + response + "\r\n".encode())
+            self.transport.write("202 EXISTS ".encode() + response.encode() + "\r\n".encode())
             self.transport.close()
         else:
             print("Room doesn't exists! Sent NOT_EXISTS.")
