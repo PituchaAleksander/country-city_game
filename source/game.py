@@ -10,12 +10,12 @@ class game:
         self.numberOfPlayers=0
         self.scoreboard=[]
 
-    def writeAnswer(self):
+    def writeAnswer(self, time):
         answers = playerData()
         answers.nick=self.nick
         answers.score=self.score
 
-        print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl odpowiedzi\n8:zakończ")
+        print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl wynik i odpowiedzi\n8:zakończ")
         while True:
             x=int(input("Podaj liczbe: "))
             if x==1:
@@ -34,7 +34,6 @@ class game:
                 print(answers.show())
             elif x==8:
                 break
-            self.ans=answers
 
         return json.dumps(answers.__dict__)
 
@@ -44,26 +43,36 @@ class game:
             if self.scoreboard[i].nick==self.nick:
                 self.score=self.scoreboard[i].score
 
-    def calculateResults(self):
+    def setScoreBoradtoJson(self):
+        print("ustawiam tablicę wyników z jsona od hosta")
 
+#===================client-host===================
+
+    def calculateResults(self):
         for i in range(0, self.numberOfPlayers):
             self.scoreboard[i].calculateScore(self.character)
         print("Podaje wynik")
 
-    def getSocreBoardtoJson(self):
+    def getScoreBoardtoJson(self):
         print("Zwracam Jsona")
         json_string = json.dumps(self.scoreboard, default=obj_dict)
 
         return json_string
 
-    def setSocreBoard(self):
+    def addAnswers(self, json_string):
+        print("Dodaje do tablicy wyników")
+        score=json.loads(json_string, object_hook=decode_playerData)
+        self.scoreboard.append(score)
 
-        print("Ustawiam tablice wyników")
 
 def obj_dict(obj):
     return obj.__dict__
 
+def decode_playerData(json):
+    return playerData(json['nick'], json['score'], json['state'], json['city'], json['plant'], json['animal'], json['colour'], json['name'])
+
+
 g=game()
-print(g.writeAnswer())
-print(g.getJson())
+g.addAnswers(g.writeAnswer('time'))
+
 
