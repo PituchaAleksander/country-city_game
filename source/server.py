@@ -1,5 +1,5 @@
 import asyncio
-import hashlib
+import random
 from concurrent.futures import ThreadPoolExecutor
 
 server_host = "127.0.0.1"
@@ -9,9 +9,9 @@ room_info = {}
 
 # metoda tworzenia pokoju gry
 def create_room(address):
-    room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(3)
+    room_password = hex(random.getrandbits(24))[2:]
     while room_password in room_info:
-        room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(3)
+        room_password = hex(random.getrandbits(24))[2:]
 
     room_info[room_password] = address
     return room_password
@@ -37,7 +37,7 @@ class CountryCityServerProtocol(asyncio.Protocol):
 
     def data_received(self, data: bytes) -> None:
         message = data.decode()
-        print("Data received: " + str(message))
+        print("Data received: " + str(message.split("\r\n")[0]))
         if "CREATE_ROOM" in message:
             asyncio.create_task(self.async_create_room())
         elif "JOIN" in message:
@@ -56,11 +56,16 @@ class CountryCityServerProtocol(asyncio.Protocol):
 
     async def async_join_room(self, password):
         task = await loop.run_in_executor(thread_pool, join_room, password)
-        response = str(task).encode()
-        print("Data sent: " + str(response))
+        if task:
+            response = str(task).encode()
+            print("Data sent: " + str(response))
 
-        self.transport.write(response + "\r\n".encode())
-        self.transport.close()
+            self.transport.write("200 EXISTS ".encode() + response + "\r\n".encode())
+            self.transport.close()
+        else:
+            print("Room doesn't exists! Sent NOT_EXISTS.")
+            self.transport.write("404 NOT_EXISTS\r\n".encode())
+            self.transport.close()
 
 
 thread_pool = ThreadPoolExecutor()
