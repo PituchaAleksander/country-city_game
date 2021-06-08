@@ -25,8 +25,14 @@ def join_room(password):
         return None
 
 
-def game_start():
-    pass
+# metoda gdy gra się rozpocznie
+def game_start(password):
+    if password in room_info:
+        print("Game started. Room password: " + password + " Host address: " + str(room_info[password]))
+        room_info.pop(password)
+        return True
+    else:
+        return False
 
 
 class CountryCityServerProtocol(asyncio.Protocol):
@@ -44,7 +50,8 @@ class CountryCityServerProtocol(asyncio.Protocol):
             room_pass = message.split("JOIN ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_join_room(room_pass))
         elif "GAME_START" in message:
-            pass
+            room_pass = message.split("GAME_START ")[1].split("\r\n")[0]
+            asyncio.create_task(self.async_game_start(room_pass))
 
     async def async_create_room(self):
         task = await loop.run_in_executor(thread_pool, create_room, self.addr)
@@ -65,6 +72,15 @@ class CountryCityServerProtocol(asyncio.Protocol):
         else:
             print("Room doesn't exists! Sent NOT_EXISTS.")
             self.transport.write("404 NOT_EXISTS\r\n".encode())
+            self.transport.close()
+
+    async def async_game_start(self, password):
+        task = await loop.run_in_executor(thread_pool, game_start, password)
+        if task:
+            self.transport.write("200 OK\r\n".encode())
+            self.transport.close()
+        else:
+            self.transport.write("404 ERROR\r\n".encode())
             self.transport.close()
 
 
