@@ -9,16 +9,20 @@ room_info = {}
 
 # metoda tworzenia pokoju gry
 def create_room(address):
-    room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(6)
+    room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(3)
     while room_password in room_info:
-        room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(6)
+        room_password = hashlib.shake_256(str.encode("utf-8")).hexdigest(3)
 
     room_info[room_password] = address
     return room_password
 
 
-def join():
-    pass
+# metoda dołączania do istniejącego pokoju
+def join_room(password):
+    if password in room_info:
+        return room_info[password]
+    else:
+        return None
 
 
 def game_start():
@@ -37,12 +41,21 @@ class CountryCityServerProtocol(asyncio.Protocol):
         if "CREATE_ROOM" in message:
             asyncio.create_task(self.async_create_room())
         elif "JOIN" in message:
-            pass
+            room_pass = message.split("\r\n")[0]
+            asyncio.create_task(self.async_join_room(int(room_pass)))
         elif "GAME_START" in message:
             pass
 
     async def async_create_room(self):
-        task = await loop.run_in_executor(thread_pool, create_room)
+        task = await loop.run_in_executor(thread_pool, create_room, self.addr)
+        response = str(task).encode()
+        print("Data sent: " + str(response))
+
+        self.transport.write("201 CREATED ".encode() + response + "\r\n".encode())
+        self.transport.close()
+
+    async def async_join_room(self, password):
+        task = await loop.run_in_executor(thread_pool, join_room, password)
         response = str(task).encode()
         print("Data sent: " + str(response))
 

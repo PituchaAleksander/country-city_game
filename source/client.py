@@ -5,7 +5,7 @@ def receive(s):
     data = b""
     while not b"\r\n" in data:
         data += s.recv(DATA_SIZE)
-    return data.decode().split('/r/n')[0]
+    return data.decode().split('\r\n')[0]
 
 
 def start_app():
@@ -17,7 +17,7 @@ def start_app():
             token = input("Podaj token:")
             server.sendall("JOIN {}\r\n\r\n".format(token).encode())
         elif i == '1':
-            server.sendall("CREATE ROOM\r\n\r\n".encode())
+            server.sendall("CREATE_ROOM\r\n\r\n".encode())
         else:
             continue
 
