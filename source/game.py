@@ -1,5 +1,5 @@
 import json
-from playerData import playerData
+from source.playerData import playerData
 
 class game:
 

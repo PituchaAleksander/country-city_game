@@ -1,6 +1,4 @@
 import asyncio
-import socket
-import _thread
 from concurrent.futures import ThreadPoolExecutor
 from game import game
 
@@ -10,6 +8,9 @@ Game = game()
 clients = []
 thread_pool = ThreadPoolExecutor()
 
+def start_game():
+    for client in clients:
+        client.transport.write(("Zaczynamy " + "\r\n").encode())
 
 class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
