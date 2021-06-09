@@ -3,12 +3,11 @@ import asyncio
 import random
 import string
 import time
-import _thread
-from host import *
+import threading
 from game import Game
 from concurrent.futures import ThreadPoolExecutor
 
-hash_room=""
+hash_room = ""
 game = Game()
 clients = []
 thread_pool = ThreadPoolExecutor()
@@ -27,7 +26,7 @@ def host_loop(s):
     game = Game()
     game.answers.nick = input("Podaj swój nick:\n")
 
-    _thread.start_new_thread(host_game, ())
+    threading.Thread(target=host_game, args=()).start()
     loop = asyncio.get_event_loop()
     coroutine = loop.create_server(HostServerProtocol, s[0], s[1])
     server = loop.run_until_complete(coroutine)
@@ -47,19 +46,20 @@ def host_game():
         game.character = curr_letter
         notify_clients("ROUND_START " + curr_letter)
 
-        _thread.start_new_thread(game.writeAnswer, ())
-        time.sleep(40)
+        t = threading.Thread(target=game.writeAnswer, args=())
+        t.start()
+        time.sleep(10)
         game.time_end = True
         game.addAnswers(game.answersToPickle())
         notify_clients("END_ROUND")
-        time.sleep(10)
+        time.sleep(2)
         game.calculateResults()
         game.showScoreAndAnswers()
         msg = game.scoreBoardtoPickle()
         notify_clients("RESULTS " + msg)
 
-
-        i=input("Czy chcesz zaczac kolejna runde? 0=NIE 1=TAK")
+        t.join()
+        i = input("Czy chcesz zaczac kolejna runde? 0=NIE 1=TAK")
         if i == '0':
             break
         elif i == '1':

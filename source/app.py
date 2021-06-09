@@ -25,7 +25,7 @@ def start_app():
             if "201" in data:
                 global hash_room
                 hash_room = data.split("CREATED ")[1]
-                print("Podaj to hasło innym: {}".format(hash_room))
+                print("Podaj token innym: {}".format(hash_room))
                 host_loop(server.getsockname())
                 break
             else:
