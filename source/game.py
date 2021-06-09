@@ -4,44 +4,55 @@ from playerData import PlayerData
 class Game:
 
     def __init__(self):
-        self.nick = ""
-        self.score = 0
+        # self.nick = ""
+        # self.score = 0
         self.character = ''
         self.numberOfPlayers = 0
         self.scoreboard = []
+        self.answers = PlayerData()
 
     def writeAnswer(self, time):
-        answers = PlayerData()
-        answers.nick = self.nick
-        answers.score = self.score
+        self.answers = PlayerData()
+        self.answers.state = ""
+        self.answers.city = ""
+        self.answers.plant = ""
+        self.answers.animal = ""
+        self.answers.color = ""
+        self.answers.name = ""
 
         print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl wynik i odpowiedzi\n8:zakończ")
         while True:
             x = int(input("Podaj liczbe: "))
             if x == 1:
-                answers.state = input("Podaj państwo: ")
+                self.answers.state = input("Podaj państwo: ")
             elif x == 2:
-                answers.city = input("Podaj miasto: ")
+                self.answers.city = input("Podaj miasto: ")
             elif x == 3:
-                answers.plant = input("Podaj rosline: ")
+                self.answers.plant = input("Podaj rosline: ")
             elif x == 4:
-                answers.animal = input("Podaj zwierze: ")
+                self.answers.animal = input("Podaj zwierze: ")
             elif x == 5:
-                answers.color = input("Podaj kolor: ")
+                self.answers.color = input("Podaj kolor: ")
             elif x == 6:
-                answers.name = input("Podaj imie: ")
+                self.answers.name = input("Podaj imie: ")
             elif x == 7:
-                print(answers.show())
+                print(self.answers.show())
             elif x == 8:
                 break
 
-        return json.dumps(answers.__dict__)
+    def answersToJson(self):
+        return json.dumps(self.answers.__dict__)
 
     def showScoreAndAnswers(self):
         for i in range(0, self.numberOfPlayers):
             print(self.scoreboard[i].show())
             if self.scoreboard[i].nick == self.nick:
                 self.score = self.scoreboard[i].score
+
+    def jsonToScoreBoard(self, json_string):
+        scoreboard = json.loads(json_string, object_hook=decode_playerData)
+        for i in range(0, len(scoreboard)):
+            self.addAnswers(scoreboard[i])
 
 #===================client-host===================
 
@@ -52,19 +63,12 @@ class Game:
 
     def getScoreBoardtoJson(self):
         print("Zwracam Jsona")
-        json_string = json.dumps(self.scoreboard, default=obj_dict)
-
-        return json_string
+        return json.dumps(self.scoreboard, default=obj_dict)
 
     def addAnswers(self, json_string):
         print("Dodaje do tablicy wyników")
         score = json.loads(json_string, object_hook=decode_playerData)
         self.scoreboard.append(score)
-
-    def jsonToScoreBoard(self, json_string):
-        scoreboard = json.loads(json_string, object_hook=decode_playerData)
-        for i in range(0, len(scoreboard)):
-            self.addAnswers(scoreboard[i])
 
 def obj_dict(obj):
     return obj.__dict__
