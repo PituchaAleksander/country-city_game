@@ -15,6 +15,8 @@ def receive(s):
 
 
 def client_game(host):
+    global game
+
     host = host.split(' ')
     print(host)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,14 +26,16 @@ def client_game(host):
         data = receive(server)
         if "OK" in data:
             print("Connected to host game! Wait for the host to start the game.")
+        elif "NEW_PLAYER" in data:
+            print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do gry")
         elif "ROUND_START" in data:
-            write = True
+            game.time_end = False
             _thread.start_new_thread(game.writeAnswer, ())
         elif "END_ROUND" in data:
-            write = False
+            game.time_end = True
+            print("\nKoniec rundy! Wyjdź z udzielania odpowiedzi!")
         elif "RESULTS" in data:
             results = data.split("RESULTS ")[1].split("\r\n")[0]
-            global game
             game.jsonToScoreBoard(results)
             game.showScoreAndAnswers()
         elif "END_GAME" in data:

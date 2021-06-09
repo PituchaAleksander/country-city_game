@@ -1,7 +1,6 @@
 import json
 from playerData import PlayerData
 
-write = True
 
 class Game:
 
@@ -12,6 +11,7 @@ class Game:
         self.numberOfPlayers = 0
         self.scoreboard = []
         self.answers = PlayerData()
+        self.time_end = False
 
     def writeAnswer(self):
         self.answers = PlayerData()
@@ -23,7 +23,7 @@ class Game:
         self.answers.name = ""
 
         print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl wynik i odpowiedzi\n8:zakończ")
-        while write:
+        while not self.time_end:
             x = int(input("Podaj liczbe: "))
             if x == 1:
                 self.answers.state = input("Podaj państwo: ")
@@ -56,7 +56,7 @@ class Game:
         for i in range(0, len(scoreboard)):
             self.addAnswers(scoreboard[i])
 
-#===================client-host===================
+# ===================client-host===================
 
     def calculateResults(self):
         for i in range(0, self.numberOfPlayers):
