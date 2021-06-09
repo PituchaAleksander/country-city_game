@@ -1,18 +1,15 @@
-import socket
-import asyncio
-import _thread
-from game import Game
-from concurrent.futures import ThreadPoolExecutor
 from host import *
 from client import *
 
 DATA_SIZE = 12
+
 
 def receive(s):
     data = b""
     while b"\r\n" not in data:
         data += s.recv(DATA_SIZE)
     return data.decode().split('\r\n')[0]
+
 
 def start_app():
     while True:

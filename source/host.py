@@ -1,5 +1,5 @@
-import asyncio
 import socket
+import asyncio
 import _thread
 from host import *
 from concurrent.futures import ThreadPoolExecutor
@@ -11,9 +11,11 @@ hash_room=""
 clients = []
 thread_pool = ThreadPoolExecutor()
 
+
 def sendClientStart():
     for client in clients:
         client.transport.write(("Zaczynamy " + "\r\n").encode())
+
 
 def host_loop(s):
     _thread.start_new_thread(host_game, ())
@@ -31,8 +33,9 @@ def host_game():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect(("localhost", 80))
     server.sendall("GAME_START {}\r\n".format(hash_room).encode())
-    sendClientStart()
     while True:
+        sendClientStart()
+
         json_string = game.writeAnswer("a")
         game.addAnswers(json_string)
 
@@ -43,6 +46,7 @@ def host_game():
         elif i == '1':
             print("Zaczynam kolejna runde")
 
+
 class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
@@ -52,12 +56,8 @@ class HostServerProtocol(asyncio.Protocol):
         print("zaczynamy gre")
 
     def connect_client(self):
-        print("Połączono klienta. Nazwa gracza: " + self.name + " Adres gracza: " + str(self.addr))
         for client in clients:
             client.transport.write(("Dołączył " + self.name + "\r\n").encode())
-        game.numberOfPlayers += 1
-
-        self.transport.write("200 OK\r\n".encode())
 
     def connection_made(self, transport) -> None:
         self.transport = transport
@@ -71,13 +71,16 @@ class HostServerProtocol(asyncio.Protocol):
         if "CONNECT" in message:
             self.name = message.split("CONNECT ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_connect_client())
-
-        if "ANSWERS" in message:
+        elif "ANSWERS" in message:
             answers = message.split("ANSWERS ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_game(answers))
 
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, self.connect_client)
+        print("Połączono klienta. Nazwa gracza: " + self.name + " Adres gracza: " + str(self.addr))
+        game.numberOfPlayers += 1
+
+        self.transport.write("200 OK\r\n".encode())
 
     async def async_game(self, answers):
         await self.loop.run_in_executor(thread_pool, self.play, answers)
