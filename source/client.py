@@ -3,8 +3,8 @@ import threading
 from game import *
 
 DATA_SIZE = 12
+client_game = Game()
 
-game = Game()
 
 def receive(s):
     data = b""
@@ -13,47 +13,43 @@ def receive(s):
     return data.decode().split('\r\n')[0]
 
 
-def client_game(host):
-    global game
-    game = Game()
-    game.answers.nick = input("Podaj swój nick:\n")
-
+def client_gameplay(host):
     host = host.split(' ')
     print(host)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((host[0], int(host[1])))
-    server.sendall(("CONNECT "+game.answers.nick+"\r\n").encode())
-    t = threading.Thread(target=game.writeAnswer, args=())
+    server.sendall(("CONNECT " + client_game.answers.nick + "\r\n").encode())
+    t = threading.Thread(target=client_game.writeAnswer, args=())
     while True:
         data = receive(server)
-        print("od seerwa" + data)
+        print("Data received: " + data)
         if "OK" in data:
-            print("Connected to host game! Wait for the host to start the game.")
+            print("Dołączyłeś do pokoju gracza " + data.split("OK ")[1] + "!")
         elif "NEW_PLAYER" in data:
-            print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do gry")
+            print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
         elif "ROUND_START" in data:
             print("ROUND START!!!")
             # if t.is_alive():
             #     t.join()
             #     t = threading.Thread(target=game.writeAnswer, args=())
             curr_letter = data.split("ROUND_START ")[1].split("\r\n")[0]
-            game.character = curr_letter
-            game.time_end = False
+            client_game.character = curr_letter
+            client_game.time_end = False
             t.start()
         elif "END_ROUND" in data:
-            game.time_end = True
+            client_game.time_end = True
             print("\nKoniec rundy! Wyjdź z udzielania odpowiedzi!")
-            server.sendall(("ANSWERS "+game.answersToPickle()+"\r\n").encode())
+            server.sendall(("ANSWERS " + client_game.answersToPickle() + "\r\n").encode())
             if t.is_alive():
                 print("ZARAZ BEDE Czekal")
                 t.join()
 
-            t = threading.Thread(target=game.writeAnswer, args=())
+            t = threading.Thread(target=client_game.writeAnswer, args=())
             print("JUZ POCZEKALEM")
         elif "RESULTS" in data:
             results = data.split("RESULTS ")[1].split("\r\n")[0]
-            game.pickleToScoreBoard(results)
-            game.showScoreAndAnswers()
+            client_game.pickleToScoreBoard(results)
+            client_game.showScoreAndAnswers()
         elif "END_GAME" in data:
             server.close()
             break

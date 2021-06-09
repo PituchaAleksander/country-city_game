@@ -7,8 +7,10 @@ import threading
 from game import Game
 from concurrent.futures import ThreadPoolExecutor
 
-hash_room = ""
-game = Game()
+server_host = "127.0.0.1"
+server_port = 80
+
+host_game = Game()
 clients = []
 thread_pool = ThreadPoolExecutor()
 
@@ -17,16 +19,13 @@ def notify_clients(message):
     for client in clients:
         client.transport.write((message + "\r\n").encode())
 
+
 def receiving_answers(answers):
-    game.addAnswers(answers)
+    host_game.addAnswers(answers)
 
 
 def host_loop(s):
-    global game
-    game = Game()
-    game.answers.nick = input("Podaj swój nick:\n")
-
-    threading.Thread(target=host_game, args=()).start()
+    threading.Thread(target=host_gameplay, args=()).start()
     loop = asyncio.get_event_loop()
     coroutine = loop.create_server(HostServerProtocol, s[0], s[1])
     server = loop.run_until_complete(coroutine)
@@ -36,26 +35,28 @@ def host_loop(s):
         pass
 
 
-def host_game():
-    input("Podaj cos aby zaczac gre")
+def host_gameplay():
+    start_command = input("Napisz \"START\", aby rozpocząć!\n")
+    while "START" not in start_command.upper():
+        start_command = input("Napisz \"START\", aby rozpocząć!\n")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect(("localhost", 80))
-    server.sendall("GAME_START {}\r\n".format(hash_room).encode())
+    server.connect((server_host, server_port))
+    server.sendall("GAME_START {}\r\n".format(host_game.password).encode())
     while True:
         curr_letter = random.choice(string.ascii_letters)
-        game.character = curr_letter
+        host_game.character = curr_letter
         notify_clients("ROUND_START " + curr_letter)
 
-        t = threading.Thread(target=game.writeAnswer, args=())
+        t = threading.Thread(target=host_game.writeAnswer, args=())
         t.start()
         time.sleep(10)
-        game.time_end = True
-        game.addAnswers(game.answersToPickle())
+        host_game.time_end = True
+        host_game.addAnswers(host_game.answersToPickle())
         notify_clients("END_ROUND")
         time.sleep(2)
-        game.calculateResults()
-        game.showScoreAndAnswers()
-        msg = game.scoreBoardtoPickle()
+        host_game.calculateResults()
+        host_game.showScoreAndAnswers()
+        msg = host_game.scoreBoardtoPickle()
         notify_clients("RESULTS " + msg)
 
         t.join()
@@ -63,8 +64,8 @@ def host_game():
         if i == '0':
             break
         elif i == '1':
-            game.time_end = False
-            game.scoreboard.clear()
+            host_game.time_end = False
+            host_game.scoreboard.clear()
             print("Zaczynam kolejna runde")
 
 
@@ -90,11 +91,10 @@ class HostServerProtocol(asyncio.Protocol):
 
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
-        print("Połączono klienta. Nazwa gracza: " + self.name + " Adres gracza: " + str(self.addr))
-        game.numberOfPlayers += 1
+        host_game.numberOfPlayers += 1
+        print("Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " + str(host_game.numberOfPlayers + 1) + "\nNapisz \"START\", aby rozpocząć!")
         clients.append(self)
-        self.transport.write("200 OK\r\n".encode())
-
+        self.transport.write(("200 OK " + host_game.answers.nick + "\r\n").encode())
 
     async def async_receiving_answers(self, answers):
         await self.loop.run_in_executor(thread_pool, receiving_answers, answers)

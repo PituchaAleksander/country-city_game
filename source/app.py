@@ -1,7 +1,10 @@
-from host import *
-from client import *
+import socket
+from client import client_gameplay, client_game
+from host import host_loop, host_game
 
 DATA_SIZE = 12
+server_host = "127.0.0.1"
+server_port = 80
 
 
 def receive(s):
@@ -12,36 +15,32 @@ def receive(s):
 
 
 def start_app():
+    host_game.answers.nick = client_game.answers.nick = input("Podaj swój nick: ")
     while True:
-        i = input("Co chcesz zrobić:\n"
-                  "[1] Stwórz gre\n"
-                  "[2] Dołącz do gry\n")
+        i = input("---------------\nMenu:\n[1] Stwórz gre\n[2] Dołącz do gry\nPodaj numer: ")
         if i == '1':
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server.connect(("localhost", 80))
+            server.connect((server_host, server_port))
 
             server.sendall("CREATE_ROOM\r\n".encode())
             data = receive(server)
             if "201" in data:
-                global hash_room
-                hash_room = data.split("CREATED ")[1]
-                print("Podaj token innym: {}".format(hash_room))
+                host_game.password = data.split("CREATED ")[1]
+                print("Teraz możesz zaprosić innych graczy do gry! Hasło pokoju: {}".format(host_game.password))
                 host_loop(server.getsockname())
                 break
             else:
                 print(data)
         elif i == '2':
-            token = input("Podaj token:")
+            token = input("Podaj hasło pokoju: ")
 
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server.connect(("localhost", 80))
-            server.sendall("JOIN {}\r\n".format(token).encode())
+            server.connect((server_host, server_port))
 
+            server.sendall("JOIN {}\r\n".format(token).encode())
             data = receive(server)
             if "202" in data:
-                print(data)
-                client_game(data.split("EXISTS ")[1])
-
+                client_gameplay(data.split("EXISTS ")[1])
                 break
             else:
                 print(data)

@@ -4,10 +4,10 @@ from playerData import PlayerData
 
 
 class Game:
-
     def __init__(self):
         # self.nick = ""
         # self.score = 0
+        self.password = ""          # room password
         self.character = ''
         self.numberOfPlayers = 0
         self.scoreboard = []

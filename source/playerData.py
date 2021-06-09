@@ -1,5 +1,3 @@
-import string
-
 class PlayerData:
 
     def __init__(self, nick="", score=0, state="", city="", plant="", animal="", color="", name=""):
