@@ -1,3 +1,4 @@
+import string
 
 class PlayerData:
 
@@ -15,20 +16,20 @@ class PlayerData:
         return "Nick: "+self.nick+" Wynik: "+str(self.score)+" Panstwo: "+self.state+" Miasto: "+self.city+" Roslina: "+self.plant+" Zwierze: "+self.animal+" Kolor: "+self.color+" Imie: "+self.name
 
     def calculateScore(self, character):
-        if len(self.state) > 0 and self.state[0] == character:
+        if len(self.state) > 0 and self.state[0].lower() == character.lower():
             self.score += 1
 
-        if len(self.city) > 0 and self.city[0] == character:
+        if len(self.city) > 0 and self.city[0].lower() == character.lower():
             self.score += 1
 
-        if len(self.plant) > 0 and self.plant[0] == character:
+        if len(self.plant) > 0 and self.plant[0].lower() == character.lower():
             self.score += 1
 
-        if len(self.animal) > 0 and self.animal[0] == character:
+        if len(self.animal) > 0 and self.animal[0].lower() == character.lower():
             self.score += 1
 
-        if len(self.color) > 0 and self.color[0] == character:
+        if len(self.color) > 0 and self.color[0].lower() == character.lower():
             self.score += 1
 
-        if len(self.name) > 0 and self.name[0] == character:
+        if len(self.name) > 0 and self.name[0].lower() == character.lower():
             self.score += 1

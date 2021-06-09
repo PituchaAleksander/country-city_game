@@ -1,4 +1,5 @@
-import json
+import pickle
+import codecs
 from playerData import PlayerData
 
 
@@ -14,7 +15,6 @@ class Game:
         self.time_end = False
 
     def writeAnswer(self):
-        self.answers = PlayerData()
         self.answers.state = ""
         self.answers.city = ""
         self.answers.plant = ""
@@ -22,7 +22,7 @@ class Game:
         self.answers.color = ""
         self.answers.name = ""
 
-        print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl wynik i odpowiedzi\n8:zakończ")
+        print("Podaj odpowiednia liczbę aby wybrać opcje:\n1:państwo\n2:miasto\n3:roslina\n4:zwierze\n5:kolor\n6:imie\n7:wyświetl wynik i odpowiedzi\n8:zakończ\nLitera: "+self.character)
         while not self.time_end:
             x = int(input("Podaj liczbe: "))
             if x == 1:
@@ -42,41 +42,29 @@ class Game:
             elif x == 8:
                 break
 
-    def answersToJson(self):
-        return json.dumps(self.answers.__dict__)
+    def answersToPickle(self):
+        return codecs.encode(pickle.dumps(self.answers), "base64").decode()
 
     def showScoreAndAnswers(self):
-        for i in range(0, self.numberOfPlayers):
-            print(self.scoreboard[i].show())
-            if self.scoreboard[i].nick == self.nick:
-                self.score = self.scoreboard[i].score
+        print(len(self.scoreboard))
+        for s in self.scoreboard:
+            print(s.show())
+            if s.nick == self.answers.nick:
+                self.answers.score = s.score
 
-    def jsonToScoreBoard(self, json_string):
-        scoreboard = json.loads(json_string, object_hook=decode_playerData)
-        for i in range(0, len(scoreboard)):
-            self.addAnswers(scoreboard[i])
+    def pickleToScoreBoard(self, string):
+        self.scoreboard = pickle.loads(codecs.decode(string.encode(), "base64"))
 
 # ===================client-host===================
 
     def calculateResults(self):
-        for i in range(0, self.numberOfPlayers):
-            self.scoreboard[i].calculateScore(self.character)
-        print("Podaje wynik")
+        for s in self.scoreboard:
+            s.calculateScore(self.character)
 
-    def getScoreBoardtoJson(self):
-        print("Zwracam Jsona")
-        return json.dumps(self.scoreboard, default=obj_dict)
+    def scoreBoardtoPickle(self):
+        return codecs.encode(pickle.dumps(self.scoreboard), "base64").decode()
 
-    def addAnswers(self, json_string):
-        print("Dodaje do tablicy wyników")
-        score = json.loads(json_string, object_hook=decode_playerData)
+
+    def addAnswers(self, string):
+        score = pickle.loads(codecs.decode(string.encode(), "base64"))
         self.scoreboard.append(score)
-
-def obj_dict(obj):
-    return obj.__dict__
-
-def decode_playerData(json):
-    return PlayerData(json['nick'], json['score'], json['state'], json['city'], json['plant'], json['animal'], json['color'], json['name'])
-
-
-

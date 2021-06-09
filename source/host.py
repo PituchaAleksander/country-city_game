@@ -5,12 +5,11 @@ import string
 import time
 import _thread
 from host import *
-from concurrent.futures import ThreadPoolExecutor
 from game import Game
+from concurrent.futures import ThreadPoolExecutor
 
-game = Game()
 hash_room=""
-
+game = Game()
 clients = []
 thread_pool = ThreadPoolExecutor()
 
@@ -19,8 +18,15 @@ def notify_clients(message):
     for client in clients:
         client.transport.write((message + "\r\n").encode())
 
+def receiving_answers(answers):
+    game.addAnswers(answers)
+
 
 def host_loop(s):
+    global game
+    game = Game()
+    game.answers.nick = input("Podaj swój nick:\n")
+
     _thread.start_new_thread(host_game, ())
     loop = asyncio.get_event_loop()
     coroutine = loop.create_server(HostServerProtocol, s[0], s[1])
@@ -42,16 +48,23 @@ def host_game():
         notify_clients("ROUND_START " + curr_letter)
 
         _thread.start_new_thread(game.writeAnswer, ())
-        time.sleep(15)
+        time.sleep(40)
         game.time_end = True
-        game.addAnswers(game.answersToJson())
+        game.addAnswers(game.answersToPickle())
         notify_clients("END_ROUND")
+        time.sleep(10)
+        game.calculateResults()
+        game.showScoreAndAnswers()
+        msg = game.scoreBoardtoPickle()
+        notify_clients("RESULTS " + msg)
 
 
         i=input("Czy chcesz zaczac kolejna runde? 0=NIE 1=TAK")
         if i == '0':
             break
         elif i == '1':
+            game.time_end = False
+            game.scoreboard.clear()
             print("Zaczynam kolejna runde")
 
 
@@ -59,9 +72,6 @@ class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
         print("Initiate server")
-
-    def play(self, answers):
-        print("zaczynamy gre")
 
     def connection_made(self, transport) -> None:
         self.transport = transport
@@ -76,7 +86,7 @@ class HostServerProtocol(asyncio.Protocol):
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
             answers = message.split("ANSWERS ")[1].split("\r\n")[0]
-            asyncio.create_task(self.async_game(answers))
+            asyncio.create_task(self.async_receiving_answers(answers))
 
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
@@ -86,5 +96,5 @@ class HostServerProtocol(asyncio.Protocol):
         self.transport.write("200 OK\r\n".encode())
 
 
-    async def async_game(self, answers):
-        await self.loop.run_in_executor(thread_pool, self.play, answers)
+    async def async_receiving_answers(self, answers):
+        await self.loop.run_in_executor(thread_pool, receiving_answers, answers)
