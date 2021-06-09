@@ -1,6 +1,7 @@
 import socket
 import threading
 from game import *
+from GUI import App
 
 DATA_SIZE = 12
 client_game = Game()
@@ -19,7 +20,6 @@ def client_gameplay(host):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((host[0], int(host[1])))
     server.sendall(("CONNECT " + client_game.answers.nick + "\r\n").encode())
-    t = threading.Thread(target=client_game.writeAnswer, args=())
     while True:
         data = receive(server)
         print("Data received: " + data)
@@ -29,23 +29,15 @@ def client_gameplay(host):
             print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
         elif "ROUND_START" in data:
             print("ROUND START!!!")
-            # if t.is_alive():
-            #     t.join()
-            #     t = threading.Thread(target=game.writeAnswer, args=())
             curr_letter = data.split("ROUND_START ")[1].split("\r\n")[0]
             client_game.character = curr_letter
-            client_game.time_end = False
-            t.start()
+
+            app = App()
         elif "END_ROUND" in data:
-            client_game.time_end = True
+            client_game.answers = app.get_values()
+            app.callback()
             print("\nKoniec rundy! Wyjdź z udzielania odpowiedzi!")
             server.sendall(("ANSWERS " + client_game.answersToPickle() + "\r\n").encode())
-            if t.is_alive():
-                print("ZARAZ BEDE Czekal")
-                t.join()
-
-            t = threading.Thread(target=client_game.writeAnswer, args=())
-            print("JUZ POCZEKALEM")
         elif "RESULTS" in data:
             results = data.split("RESULTS ")[1].split("\r\n")[0]
             client_game.pickleToScoreBoard(results)

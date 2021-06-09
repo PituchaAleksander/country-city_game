@@ -6,6 +6,7 @@ import time
 import threading
 from game import Game
 from concurrent.futures import ThreadPoolExecutor
+from GUI import App
 
 server_host = "127.0.0.1"
 server_port = 80
@@ -47,10 +48,11 @@ def host_gameplay():
         host_game.character = curr_letter
         notify_clients("ROUND_START " + curr_letter)
 
-        t = threading.Thread(target=host_game.writeAnswer, args=())
-        t.start()
-        time.sleep(10)
-        host_game.time_end = True
+        app = App()
+
+        time.sleep(20)
+        host_game.answers = app.get_values()
+        app.callback()
         host_game.addAnswers(host_game.answersToPickle())
         notify_clients("END_ROUND")
         time.sleep(2)
@@ -59,7 +61,6 @@ def host_gameplay():
         msg = host_game.scoreBoardtoPickle()
         notify_clients("RESULTS " + msg)
 
-        t.join()
         i = input("Czy chcesz zaczac kolejna runde? 0=NIE 1=TAK")
         if i == '0':
             break
