@@ -11,7 +11,7 @@ class App(threading.Thread):
         self.start()
         self.created = False
         self.host = host
-        self.nick = nick
+        self.nick = nick[0:20]
         self.round_time = datetime.now()
 
     def callback(self):
@@ -63,17 +63,36 @@ class App(threading.Thread):
         self.set_time(round_time)
         self.set_warning("Gra się rozpoczęła! ", "green")
 
-    def build_start(self):
-        self.root = tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.callback)
-        self.root.geometry("690x230")
-        self.root.resizable(False, False)
-        self.root.title("Gra \"Państwa-Miasta\"")
-
-        title = tk.Label(self.root, text="Państaw-Miasta", font="Verdan 16").place(x=260, y=5)
-        nick = tk.Label(self.root, text="Witaj! Podaj swój nick: ", font="Verdan 10").place(x=54, y=85)
-        nick = tk.Text(self.root, width=16, height=1)
-        nick.place(x=100, y=85)
+    # def create_room(self, nick, widgets):
+    #     self.nick = nick
+    #     for w in widgets:
+    #         w.place_forget()
+    #     self.build_interface()
+    #
+    # def build_start(self):
+    #     self.root = tk.Tk()
+    #     self.root.protocol("WM_DELETE_WINDOW", self.callback)
+    #     self.root.geometry("690x230")
+    #     self.root.resizable(False, False)
+    #     self.root.title("Gra \"Państwa-Miasta\"")
+    #
+    #     widgets = []
+    #
+    #     title = tk.Label(self.root, text="Państwa-Miasta", font="Verdan 16")
+    #     title.place(x=262, y=5)
+    #     widgets.append(title)
+    #     nick1 = tk.Label(self.root, text="Witaj! Podaj swój nick: ", font="Verdan 10")
+    #     nick1.place(x=195, y=65)
+    #     widgets.append(nick1)
+    #     nick2 = tk.Text(self.root, width=16, height=1)
+    #     nick2.place(x=345, y=67)
+    #     widgets.append(nick2)
+    #     create = tk.Button(text="Załóż pokój", command=lambda: self.create_room(nick2.get('1.0', 'end').rstrip("\n"), widgets))
+    #     create.place(x=250, y=120)
+    #     widgets.append(create)
+    #     join = tk.Button(text="Dołącz do pokoju", command=lambda: self.create_room(nick2.get('1.0', 'end').rstrip("\n"), widgets))
+    #     join.place(x=350, y=120)
+    #     widgets.append(join)
 
     def build_interface(self):
         self.root = tk.Tk()
@@ -83,7 +102,8 @@ class App(threading.Thread):
         self.root.title("Gra \"Państwa-Miasta\"")
 
         tk.Label(self.root, text="Pokój gracza: " + self.host, font="Verdan 16").place(x=252, y=5)
-        tk.Label(self.root, text="   Witaj " + self.nick + "!\n\nTwój wynik: ", font="Verdan 10").place(x=54, y=85)
+        tk.Label(self.root, text="   Witaj " + self.nick + "!", font="Verdan 10").place(x=(66-len(self.nick)*2.8), y=85)
+        tk.Label(self.root, text="Twój wynik: ", font="Verdan 10").place(x=57, y=117)
         self.score = tk.Label(self.root, text="0", font="Verdana 10")
         self.score.place(x=128, y=117)
         self.warning = tk.Label(self.root, text="Komunikat!", height=1, width=20, bg="blue")
@@ -129,9 +149,9 @@ class App(threading.Thread):
         self.root.mainloop()
 
 
-# app = App("Host", "Gracz")
+# app = App("Host", "Nazwa gracza do 20 znaków")
 # time.sleep(1)
-# app.set_score(12)
+# app.set_score(122)
 # app.set_letter("S")
 # app.set_time("2021-06-10 22:20:00")
 # app.set_warning("Gra się rozpoczyna!", "green")
