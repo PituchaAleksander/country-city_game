@@ -1,0 +1,8 @@
+[Server] New session 2021-06-10 10:57:13
+[Server] Connection from ('127.0.0.1', 60316)
+[Client 127.0.0.1 - 60316] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 60316] Data sent: 201 CREATED dd6646
+[Server] Connection from ('127.0.0.1', 60319)
+[Client 127.0.0.1 - 60319] Data received: GAME_START dd6646
+[Client 127.0.0.1 - 60319] Data sent: 200 OK
+

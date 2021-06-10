@@ -1,10 +1,19 @@
 import asyncio
 import random
+import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 server_host = "127.0.0.1"
 server_port = 80
 room_info = {}
+filepath = "..\\logs\\server_logs"
+
+
+# metoda zapisywania logów do pliku
+def file_write(log):
+    with open(filepath, "a") as f:
+        f.write(log + "\n")
+    return log
 
 
 # metoda tworzenia pokoju gry
@@ -38,11 +47,11 @@ class CountryCityServerProtocol(asyncio.Protocol):
     def connection_made(self, transport) -> None:
         self.transport = transport
         self.addr = transport.get_extra_info("peername")
-        print("[Server] Connection from " + str(self.addr))
+        print(file_write("[Server] Connection from " + str(self.addr)))
 
     def data_received(self, data: bytes) -> None:
         message = data.decode()
-        print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data received: " + str(message.split("\r\n")[0]))
+        print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data received: " + str(message.split("\r\n")[0])))
         if "CREATE_ROOM" in message:
             asyncio.create_task(self.async_create_room())
         elif "JOIN" in message:
@@ -55,7 +64,7 @@ class CountryCityServerProtocol(asyncio.Protocol):
     async def async_create_room(self):
         task = await loop.run_in_executor(thread_pool, create_room, self.addr)
         response = str(task).encode()
-        print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 201 CREATED " + str(response.decode()))
+        print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 201 CREATED " + str(response.decode())))
 
         self.transport.write("201 CREATED ".encode() + response + "\r\n".encode())
         self.transport.close()
@@ -64,29 +73,30 @@ class CountryCityServerProtocol(asyncio.Protocol):
         task = await loop.run_in_executor(thread_pool, join_room, password)
         if task:
             response = str(task[0]) + ' ' + str(task[1])
-            print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 202 EXISTS " + str(response))
+            print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 202 EXISTS " + str(response)))
 
             self.transport.write("202 EXISTS ".encode() + response.encode() + "\r\n".encode())
             self.transport.close()
         else:
-            print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 404 NOT_EXISTS")
+            print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 404 NOT_EXISTS"))
             self.transport.write("404 NOT_EXISTS\r\n".encode())
             self.transport.close()
 
     async def async_game_start(self, password):
         task = await loop.run_in_executor(thread_pool, game_start, password)
         if task:
-            print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 200 OK")
+            print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 200 OK"))
             self.transport.write("200 OK\r\n".encode())
             self.transport.close()
         else:
-            print("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 404 ERROR")
+            print(file_write("[Client " + str(self.addr[0]) + " - " + str(self.addr[1]) + "] Data sent: 404 ERROR"))
             self.transport.write("404 ERROR\r\n".encode())
             self.transport.close()
 
 
 thread_pool = ThreadPoolExecutor()
 
+file_write("[Server] New session " + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 loop = asyncio.get_event_loop()
 coroutine = loop.create_server(CountryCityServerProtocol, server_host, server_port)
 server = loop.run_until_complete(coroutine)
@@ -99,3 +109,4 @@ except KeyboardInterrupt:
 server.close()
 loop.run_until_complete(server.wait_closed())
 loop.close()
+file_write("")
