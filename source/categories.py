@@ -1,4 +1,3 @@
-
 class Categories:
 
     def __init__(self, state="", city="", plant="", animal="", color="", name=""):
@@ -10,7 +9,12 @@ class Categories:
         self.name = name
 
     def show(self) -> str:
-        return " Panstwo: "+self.state+" Miasto: "+self.city+" Roslina: "+self.plant+" Zwierze: "+self.animal+" Kolor: "+self.color+" Imie: "+self.name
+        return " Panstwo: " + self.state +\
+               " Miasto: " + self.city +\
+               " Roslina: " + self.plant +\
+               " Zwierze: " + self.animal +\
+               " Kolor: " + self.color +\
+               " Imie: "+self.name
 
     def calculateScore(self, character, score):
         if len(self.state) > 0 and self.state[0].lower() == character.lower():

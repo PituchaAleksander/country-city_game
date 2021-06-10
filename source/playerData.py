@@ -2,8 +2,8 @@ from categories import Categories
 import pickle
 import codecs
 
-class PlayerData:
 
+class PlayerData:
     def __init__(self, nick="", score=0):
         self.nick = nick
         self.score = score
@@ -18,6 +18,7 @@ class PlayerData:
             print(s.show())
             if s.nick == self.nick:
                 self.score = s.score
+        print("\n")
 
     def show(self) -> str:
-        return "Nick: "+self.nick+" Wynik: "+str(self.score) + self.categories.show()
+        return "Nick: " + self.nick + " Wynik: " + str(self.score) + self.categories.show()
