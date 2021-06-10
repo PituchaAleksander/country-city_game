@@ -1,5 +1,5 @@
 import tkinter as tk
-from playerData import PlayerData
+from categories import Categories
 
 import threading
 
@@ -13,7 +13,7 @@ class App(threading.Thread):
         self.root.quit()
 
     def get_values(self):
-        return PlayerData(state=self.country.get('1.0', 'end'),
+        return Categories(state=self.country.get('1.0', 'end'),
                           city=self.city.get('1.0', 'end'),
                           plant=self.plant.get('1.0', 'end'),
                           animal=self.animal.get('1.0', 'end'),
