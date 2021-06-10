@@ -1,76 +1,113 @@
-import time
+from datetime import datetime
 import tkinter as tk
 from categories import Categories
-
+import time
 import threading
 
-class App(threading.Thread):
 
-    def __init__(self, nick):
+class App(threading.Thread):
+    def __init__(self, host, nick):
         threading.Thread.__init__(self)
         self.start()
+        self.host = host
         self.nick = nick
+        self.round_time = datetime.now()
 
     def callback(self):
         self.root.quit()
 
     def get_values(self):
-        return Categories(state=self.country.get('1.0', 'end'),
-                          city=self.city.get('1.0', 'end'),
-                          plant=self.plant.get('1.0', 'end'),
-                          animal=self.animal.get('1.0', 'end'),
-                          color=self.color.get('1.0', 'end'),
-                          name=self.name1.get('1.0', 'end'))
+        values = Categories(state=self.country.get('1.0', 'end'),
+                            city=self.city.get('1.0', 'end'),
+                            plant=self.plant.get('1.0', 'end'),
+                            animal=self.animal.get('1.0', 'end'),
+                            color=self.color.get('1.0', 'end'),
+                            name=self.name1.get('1.0', 'end'))
+        self.clear_fields()
+        return values
 
-    def set_score(self, scores):
-        tk.Label(self.root, text=str(scores), font="Verdana 16 bold").grid(row=0, column=6, stick="W")
+    def clear_fields(self):
+        self.country.delete("1.0", tk.END)
+        self.city.delete("1.0", tk.END)
+        self.plant.delete("1.0", tk.END)
+        self.animal.delete("1.0", tk.END)
+        self.color.delete("1.0", tk.END)
+        self.name1.delete("1.0", tk.END)
+
+    def clock(self):
+        seconds = int((self.round_time - datetime.now()).total_seconds())
+
+        if seconds >= 0:
+            self.time.config(text=str(int(seconds/60)).zfill(2) + ":" + str(seconds % 60).zfill(2))
+            self.time.after(1000, self.clock)
+
+    def set_time(self, round_time):
+        self.round_time = datetime.strptime(round_time, '%Y-%m-%d %H:%M:%S')
+        self.clock()
+
+    def set_score(self, score):
+        self.score.config(text=score)
 
     def set_letter(self, letter):
-        tk.Label(self.root, text=letter, font="Verdana 13 bold").grid(row=5, column=0)
+        self.letter.config(text=letter)
+
+    def set_warning(self, warning, color):
+        self.warning.config(text=warning, bg=color)
 
     def build_interface(self):
         self.root = tk.Tk()
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
+        self.root.geometry("690x230")
+        self.root.resizable(False, False)
+        self.root.title("Gra \"Państwa-Miasta\"")
 
-        tk.Label(self.root, text="NICK").grid(row=0, column=0)
-        tk.Label(self.root, text=self.nick, font="Verdana 16 bold").grid(row=0, column=1, columnspan=3, stick="W")
+        tk.Label(self.root, text="Pokój gracza: " + self.host, font="Verdan 16").place(x=255, y=5)
+        tk.Label(self.root, text="    Witaj " + self.nick + "!\n\nTwój wynik: ", font="Verdan 10").place(x=50, y=85)
+        self.score = tk.Label(self.root, text="-", font="Verdana 10")
+        self.score.place(x=133, y=118)
+        self.warning = tk.Label(self.root, text="Komunikat!", height=1, width=20, bg="blue")
+        self.warning.place(x=31, y=165)
 
-        tk.Label(self.root, text="SCORES").grid(row=0, column=5, stick="E")
-        tk.Label(self.root, text="-", font="Verdana 16 bold").grid(row=0, column=6, stick="W")
+        tk.Label(self.root, text="Litera: ", font="Verdan 11").place(x=310, y=55)
+        self.letter = tk.Label(self.root, text="-", font="Verdan 11")
+        self.letter.place(x=365, y=55)
 
-        tk.Label(self.root, text="LETTER").grid(row=4, column=0)
-        tk.Label(self.root, text="-", font="Verdana 13 bold").grid(row=5, column=0)
+        tk.Label(self.root, text="Do końca rundy: ", font="Verdan 11").place(x=430, y=55)
+        self.time = tk.Label(self.root, text="-", font="Verdan 11")
+        self.time.place(x=550, y=55)
 
+        tk.Label(self.root, text="Państwo: ").place(x=220, y=94)
+        self.country = tk.Text(self.root, width=16, height=1)
+        self.country.place(x=290, y=95)
 
-        tk.Label(self.root, text="Państwo").grid(row=4, column=1)
-        self.country = tk.Text(self.root, width=16, height=2)
-        self.country.grid(row=5, column=1)
+        tk.Label(self.root, text="Miasto: ").place(x=460, y=94)
+        self.city = tk.Text(self.root, width=16, height=1)
+        self.city.place(x=520, y=95)
 
-        tk.Label(self.root, text="Miasto").grid(row=4, column=2)
-        self.city = tk.Text(self.root, width=16, height=2)
-        self.city.grid(row=5, column=2)
+        tk.Label(self.root, text="Kolor: ").place(x=220, y=134)
+        self.color = tk.Text(self.root, width=16, height=1)
+        self.color.place(x=290, y=135)
 
-        tk.Label(self.root, text="Roślina").grid(row=4, column=3)
-        self.plant = tk.Text(self.root, width=16, height=2)
-        self.plant.grid(row=5, column=3)
+        tk.Label(self.root, text="Zwierze: ").place(x=460, y=134)
+        self.animal = tk.Text(self.root, width=16, height=1)
+        self.animal.place(x=520, y=135)
 
-        tk.Label(self.root, text="Zwierze").grid(row=4, column=4)
-        self.animal = tk.Text(self.root, width=16, height=2)
-        self.animal.grid(row=5, column=4)
+        tk.Label(self.root, text="Roślina: ").place(x=220, y=174)
+        self.plant = tk.Text(self.root, width=16, height=1)
+        self.plant.place(x=290, y=175)
 
-        tk.Label(self.root, text="Kolor").grid(row=4, column=5)
-        self.color = tk.Text(self.root, width=16, height=2)
-        self.color.grid(row=5, column=5)
-
-        tk.Label(self.root, text="Imię").grid(row=4, column=6)
-        self.name1 = tk.Text(self.root, width=16, height=2)
-        self.name1.grid(row=5, column=6)
+        tk.Label(self.root, text="Imię: ").place(x=460, y=174)
+        self.name1 = tk.Text(self.root, width=16, height=1)
+        self.name1.place(x=520, y=175)
 
     def run(self):
         self.build_interface()
         self.root.mainloop()
 
-app = App("AMADEUSZ")
-time.sleep(6)
+
+app = App("Host", "Gracz")
+time.sleep(1)
 app.set_score(12)
-app.set_letter("s")
+app.set_letter("S")
+app.set_time("2021-06-10 19:20:00")
+app.set_warning("Gra się rozpoczyna!", "green")

@@ -33,9 +33,11 @@ def client_gameplay(host):
 
         elif "ROUND_START" in data:
             print("ROUND START!!!")
-            curr_letter = data.split("ROUND_START ")[1].split("\r\n")[0]
-            print("Litera: "+curr_letter)
+            curr_letter = data.split("ROUND_START ")[1].split(" ")[0]
+            round_time = data.split("ROUND_START ")[1].split(" ")[1] + " " + data.split("ROUND_START ")[1].split(" ")[2]
+            print("Litera: " + curr_letter + "Round start: " + round_time)
             app.set_letter(curr_letter)
+            app.set_time(round_time)
 
         elif "END_ROUND" in data:
             player_data.categories = app.get_values()

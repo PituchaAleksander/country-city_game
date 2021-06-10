@@ -4,6 +4,7 @@ import random
 import string
 import time
 import threading
+import datetime
 from gameData import GameData
 from playerData import PlayerData
 from concurrent.futures import ThreadPoolExecutor
@@ -41,33 +42,36 @@ def host_gameplay():
     server.connect((server_host, server_port))
     server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
     while True:
-#==================Ustawienie/wysłanie litery==================
+# ==================Ustawienie/wysłanie litery==================
         curr_letter = random.choice(string.ascii_letters)
         game_data.character = curr_letter
-        notify_clients("ROUND_START " + curr_letter)
-        print("Litera: "+curr_letter)
-
-#==================Start wpisywania==================
         app = App(host_player_data.nick)
+                    # TU WYWALA APKE BO INNY WATEK BUDUJE APP A SET_TIME JEST SZYBSZE I CHCE USTAWIC NULL
+        round_time = (datetime.datetime.now() + datetime.timedelta(seconds=20)).strftime("%Y-%m-%d %H:%M:%S")
+        notify_clients("ROUND_START " + curr_letter + " " + round_time)
+        app.set_time(round_time)
 
+        print("Litera: " + curr_letter)
+
+# ==================Start wpisywania==================
         time.sleep(20)
         host_player_data.categories = app.get_values()
         app.callback()
         game_data.addAnswers(host_player_data.answersToPickle())
 
-#==================Zakończenie rundy==================
+# ==================Zakończenie rundy==================
         notify_clients("END_ROUND")
         time.sleep(2)
 
-#==================Liczenie wyników==================
+# ==================Liczenie wyników==================
         game_data.calculateResults()
         host_player_data.showScoreAndAnswers(game_data.scoreBoardtoPickle())
 
-#==================Wysyłanie wyników do graczy==================
+# ==================Wysyłanie wyników do graczy==================
         msg = game_data.scoreBoardtoPickle()
         notify_clients("RESULTS " + msg)
 
-#==================Koniec/Nowa runda==================
+# ==================Koniec/Nowa runda==================
         i = input("Czy chcesz zaczac kolejna runde? 0=NIE 1=TAK")
         if i == '0':
             break
@@ -76,7 +80,7 @@ def host_gameplay():
             game_data.scoreboard.clear()
             print("Zaczynam kolejna runde")
 
-#====================================HostServerProtocol====================================
+# ====================================HostServerProtocol====================================
 
 class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
