@@ -48,7 +48,7 @@ def host_gameplay():
         print("Litera: "+curr_letter)
 
 #==================Start wpisywania==================
-        app = App()
+        app = App(host_player_data.nick)
 
         time.sleep(20)
         host_player_data.categories = app.get_values()

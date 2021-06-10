@@ -13,7 +13,6 @@ def receive(s):
         data += s.recv(DATA_SIZE)
     return data.decode().split('\r\n')[0]
 
-
 def start_app():
     host_player_data.nick = player_data.nick = input("Podaj swój nick: ")
     while True:

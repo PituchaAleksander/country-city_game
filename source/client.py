@@ -1,5 +1,7 @@
 import socket
 import threading
+import time
+
 from playerData import *
 from GUI import App
 
@@ -24,6 +26,7 @@ def client_gameplay(host):
         data = receive(server)
         if "OK" in data:
             print("Dołączyłeś do pokoju gracza " + data.split("OK ")[1] + "!")
+            app = App(player_data.nick)
 
         elif "NEW_PLAYER" in data:
             print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
@@ -32,20 +35,22 @@ def client_gameplay(host):
             print("ROUND START!!!")
             curr_letter = data.split("ROUND_START ")[1].split("\r\n")[0]
             print("Litera: "+curr_letter)
-            app = App()
+            app.set_letter(curr_letter)
 
         elif "END_ROUND" in data:
             player_data.categories = app.get_values()
-            app.callback()
+            app.set_letter("-")
             print("\nKoniec rundy! Wyjdź z udzielania odpowiedzi!")
             server.sendall(("ANSWERS " + player_data.answersToPickle() + "\r\n").encode())
 
         elif "RESULTS" in data:
             results = data.split("RESULTS ")[1].split("\r\n")[0]
             player_data.showScoreAndAnswers(results)
+            app.set_score(player_data.score)
 
         elif "END_GAME" in data:
             server.close()
+            app.callback()
             break
         else:
             print(data)
