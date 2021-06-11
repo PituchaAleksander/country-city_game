@@ -5,7 +5,7 @@ import time
 import threading
 
 
-class App(threading.Thread):
+class GUIApp(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.start()
