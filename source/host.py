@@ -18,6 +18,7 @@ game_data = GameData()
 host_player_data = PlayerData()
 clients = []
 thread_pool = ThreadPoolExecutor()
+round_num = 0
 
 
 def notify_clients(message):
@@ -38,6 +39,7 @@ def host_loop(s):
 
 
 def host_gameplay():
+    global round_num
     start_command = input("Napisz \"START\", aby rozpocząć!\n")
     while "START" not in start_command.upper():
         start_command = input("Napisz \"START\", aby rozpocząć!\n")
@@ -53,6 +55,7 @@ def host_gameplay():
         game_data.set_letter(random.choice(string.ascii_letters))
         print("Przełącz się na interfejs gry. Runda zaraz się rozpocznie!")
         time.sleep(5)
+        print("\nLitera: " + game_data.letter)
         round_time = (datetime.datetime.now() + datetime.timedelta(seconds=21)).strftime("%Y-%m-%d %H:%M:%S")
         notify_clients("ROUND_START " + game_data.letter + " " + round_time)
         game_data.actual_response_number = 0
@@ -65,16 +68,18 @@ def host_gameplay():
 
         # ================== Zakończenie rundy ==================
         app.set_letter("-")
-        app.set_warning("Oczekiwanie na odpowiedzi", "blue")
+        app.set_warning("Oczekiwanie na odpowiedzi...", "blue")
         notify_clients("END_ROUND")
 
         #================== Oczekiwanie na odpowiedzi graczy ==================
         while len(clients) != game_data.actual_response_number:
             pass
-        app.set_warning("Koniec rundy!", "green")
+        app.set_warning("Wróć do konsoli!", "blue")
 
         # ================== Liczenie wyników ==================
         game_data.calculate_results()
+        round_num += 1
+        print("Koniec rundy " + str(round_num) + "!\nWynik:")
         host_player_data.show_answers_and_save_score(game_data.score_board_to_pickle())
         app.set_score(host_player_data.score)
 
@@ -91,6 +96,7 @@ def host_gameplay():
                 print("Kolejna runda się zaczęła! Wróć do interfejsu gry!")
                 break
             elif i == '2' or i.upper() == 'NIE':
+                print("Do zobaczenia!")
                 app.callback()
                 notify_clients("END_GAME")
                 os._exit(0)
@@ -106,7 +112,7 @@ class HostServerProtocol(asyncio.Protocol):
     def connection_made(self, transport) -> None:
         self.transport = transport
         self.addr = transport.get_extra_info("peername")
-        # print("Connection from " + str(self.addr))
+        # print("[SERVER-HOST]: Połączono " + str(self.addr))
         self.name = None
 
     def data_received(self, data: bytes) -> None:

@@ -59,6 +59,7 @@ class GUIApp(threading.Thread):
         self.warning.config(text=warning, bg=color)
 
     def start_game(self, letter, round_time):
+        self.clear_fields()
         self.set_letter(letter)
         self.set_time(round_time)
         self.set_warning("Gra się rozpoczęła! ", "green")

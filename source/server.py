@@ -96,7 +96,7 @@ class CountryCityServerProtocol(asyncio.Protocol):
 
 thread_pool = ThreadPoolExecutor()
 
-file_write("\n[Server] New session " + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+file_write("[Server] New session " + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 loop = asyncio.get_event_loop()
 coroutine = loop.create_server(CountryCityServerProtocol, server_host, server_port)
 server = loop.run_until_complete(coroutine)

@@ -1,6 +1,7 @@
 import pickle
 import codecs
 
+
 class GameData:
     def __init__(self):
         self.password = ""          # room password

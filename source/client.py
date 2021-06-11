@@ -4,6 +4,7 @@ from GUI import GUIApp
 
 DATA_SIZE = 12
 player_data = PlayerData()
+round_num = 0
 
 
 def receive(s):
@@ -14,7 +15,7 @@ def receive(s):
 
 
 def client_gameplay(host):
-    global app
+    global app, round_num
     host = host.split(' ')
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((host[0], int(host[1])))
@@ -24,7 +25,7 @@ def client_gameplay(host):
             data = receive(server)
             if "OK" in data:
                 host_name = data.split("OK ")[1]
-                print("Dołączyłeś do pokoju gracza " + host_name + "!")
+                print("Dołączyłeś do pokoju gracza " + host_name + "! Przejdź do interfejsu gry!")
                 app = GUIApp(host_name, player_data.nick)
 
             elif "NEW_PLAYER" in data:
@@ -36,13 +37,14 @@ def client_gameplay(host):
                         break
                 curr_letter = data.split("ROUND_START ")[1].split(" ")[0]
                 round_time = data.split("ROUND_START ")[1].split(" ")[1] + " " + data.split("ROUND_START ")[1].split(" ")[2]
-                print("Litera: " + curr_letter)
+                print("\nLitera: " + curr_letter)
                 app.start_game(curr_letter, round_time)
 
             elif "END_ROUND" in data:
+                round_num += 1
                 player_data.categories = app.get_values()
                 app.set_letter("-")
-                print("\nKoniec rundy!")
+                print("Koniec rundy " + str(round_num) + "!")
                 app.set_warning("Koniec rundy!", "green")
                 server.sendall(("ANSWERS " + player_data.answers_to_pickle() + "\r\n").encode())
 
@@ -55,13 +57,14 @@ def client_gameplay(host):
                 print("Oczekiwanie na rozpoczęcie kolejnej rundy przez hosta!")
 
             elif "END_GAME" in data:
+                print("Host opuścił pokój! Do zobaczenia następnym razem!")
                 server.close()
                 app.callback()
                 return
             else:
                 print(data)
     except socket.error:
-        print("Host opuścił pokój!")
+        print("Host opuścił pokój! Do zobaczenia następnym razem!")
         server.close()
         app.callback()
         return
