@@ -1,6 +1,6 @@
 import socket
 from playerData import PlayerData
-from GUI import App
+from GUI import GUIApp
 
 DATA_SIZE = 12
 player_data = PlayerData()
@@ -25,7 +25,7 @@ def client_gameplay(host):
             if "OK" in data:
                 host_name = data.split("OK ")[1]
                 print("Dołączyłeś do pokoju gracza " + host_name + "!")
-                app = App(host_name, player_data.nick)
+                app = GUIApp(host_name, player_data.nick)
 
             elif "NEW_PLAYER" in data:
                 print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
@@ -44,12 +44,12 @@ def client_gameplay(host):
                 app.set_letter("-")
                 print("\nKoniec rundy!")
                 app.set_warning("Koniec rundy!", "green")
-                server.sendall(("ANSWERS " + player_data.answersToPickle() + "\r\n").encode())
+                server.sendall(("ANSWERS " + player_data.answers_to_pickle() + "\r\n").encode())
 
             elif "RESULTS" in data:
                 results = data.split("RESULTS ")[1].split("\r\n")[0]
                 print("Wynik: ")
-                player_data.showScoreAndAnswers(results)
+                player_data.show_answers_and_save_score(results)
                 app.set_score(player_data.score)
                 app.set_warning("Oczekiwanie na hosta!", "blue")
                 print("Oczekiwanie na rozpoczęcie kolejnej rundy przez hosta!")

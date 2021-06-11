@@ -8,7 +8,7 @@ class Categories:
         self.color = color
         self.name = name
 
-    def show(self) -> str:
+    def __str__(self) -> str:
         return " Panstwo: " + self.state +\
                " Miasto: " + self.city +\
                " Roslina: " + self.plant +\
@@ -16,7 +16,7 @@ class Categories:
                " Kolor: " + self.color +\
                " Imie: "+self.name
 
-    def calculateScore(self, character, score):
+    def calculate_score(self, character, score):
         if len(self.state) > 0 and self.state[0].lower() == character.lower():
             score += 1
 

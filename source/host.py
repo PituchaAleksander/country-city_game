@@ -5,10 +5,11 @@ import string
 import time
 import threading
 import datetime
+import os
 from gameData import GameData
 from playerData import PlayerData
 from concurrent.futures import ThreadPoolExecutor
-from GUI import App
+from GUI import GUIApp
 
 server_host = "127.0.0.1"
 server_port = 80
@@ -43,7 +44,7 @@ def host_gameplay():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((server_host, server_port))
     server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
-    app = App(host_player_data.nick, host_player_data.nick)
+    app = GUIApp(host_player_data.nick, host_player_data.nick)
     while True:
         if app.is_created():
             break
@@ -54,31 +55,36 @@ def host_gameplay():
         time.sleep(5)
         round_time = (datetime.datetime.now() + datetime.timedelta(seconds=21)).strftime("%Y-%m-%d %H:%M:%S")
         notify_clients("ROUND_START " + game_data.letter + " " + round_time)
+        game_data.actual_response_number = 0
         app.start_game(game_data.letter, round_time)
 
         # ================== Start wpisywania ==================
-        time.sleep(20)
+        time.sleep(game_data.round_time)
         host_player_data.categories = app.get_values()
-        game_data.addAnswers(host_player_data.answersToPickle())
+        game_data.add_answers(host_player_data.answers_to_pickle())
 
         # ================== Zakończenie rundy ==================
         app.set_letter("-")
-        app.set_warning("Koniec rundy!", "green")
+        app.set_warning("Oczekiwanie na odpowiedzi", "blue")
         notify_clients("END_ROUND")
-        time.sleep(2)
+
+        #================== Oczekiwanie na odpowiedzi graczy ==================
+        while len(clients) != game_data.actual_response_number:
+            pass
+        app.set_warning("Koniec rundy!", "green")
 
         # ================== Liczenie wyników ==================
-        game_data.calculateResults()
+        game_data.calculate_results()
+        host_player_data.show_answers_and_save_score(game_data.score_board_to_pickle())
         app.set_score(host_player_data.score)
-        host_player_data.showScoreAndAnswers(game_data.scoreBoardtoPickle())
 
         # ================== Wysyłanie wyników do graczy ==================
-        msg = game_data.scoreBoardtoPickle()
+        msg = game_data.score_board_to_pickle()
         notify_clients("RESULTS " + msg)
 
         # ================== Koniec/Nowa runda ==================
         while True:
-            i = input("Czy chcesz zaczac kolejna runde?\n[1] Tak\n[2] NIE\n")
+            i = input("Czy chcesz zaczac kolejna runde?\n[1] TAK\n[2] NIE\n")
             if i == '1' or i.upper() == 'TAK':
                 game_data.time_end = False
                 game_data.scoreboard.clear()
@@ -86,6 +92,8 @@ def host_gameplay():
                 break
             elif i == '2' or i.upper() == 'NIE':
                 app.callback()
+                notify_clients("END_GAME")
+                os._exit(0)
                 return
 
 
@@ -98,7 +106,7 @@ class HostServerProtocol(asyncio.Protocol):
     def connection_made(self, transport) -> None:
         self.transport = transport
         self.addr = transport.get_extra_info("peername")
-        #print("Connection from " + str(self.addr))
+        # print("Connection from " + str(self.addr))
         self.name = None
 
     def data_received(self, data: bytes) -> None:
@@ -107,16 +115,20 @@ class HostServerProtocol(asyncio.Protocol):
             self.name = message.split("CONNECT ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
+            game_data.actual_response_number += 1
             answers = message.split("ANSWERS ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_receiving_answers(answers))
 
+    def connection_lost(self, ex):
+        print("[SERVER-HOST]: Rozłączono {}".format(self.name))
+        clients.remove(self)
+
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
-        game_data.numberOfPlayers += 1
-        print("Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
-              str(game_data.numberOfPlayers + 1) + "\nNapisz \"START\", aby rozpocząć!")
+        print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
+              str(len(clients) + 1) + "\nNapisz \"START\", aby rozpocząć!")
         clients.append(self)
         self.transport.write(("200 OK " + host_player_data.nick + "\r\n").encode())
 
     async def async_receiving_answers(self, answers):
-        await self.loop.run_in_executor(thread_pool, game_data.addAnswers, answers)
+        await self.loop.run_in_executor(thread_pool, game_data.add_answers, answers)

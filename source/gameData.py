@@ -1,25 +1,24 @@
 import pickle
 import codecs
-from playerData import PlayerData
-
 
 class GameData:
     def __init__(self):
         self.password = ""          # room password
         self.letter = ''
-        self.numberOfPlayers = 0
         self.scoreboard = []
+        self.actual_response_number = 0
+        self.round_time = 20
 
     def set_letter(self, letter):
         self.letter = str(letter).upper()
 
-    def calculateResults(self):
+    def calculate_results(self):
         for s in self.scoreboard:
-            s.score = s.categories.calculateScore(self.letter, s.score)
+            s.score = s.categories.calculate_score(self.letter, s.score)
 
-    def scoreBoardtoPickle(self):
+    def score_board_to_pickle(self):
         return codecs.encode(pickle.dumps(self.scoreboard), "base64").decode()
 
-    def addAnswers(self, string):
+    def add_answers(self, string):
         score = pickle.loads(codecs.decode(string.encode(), "base64"))
         self.scoreboard.append(score)

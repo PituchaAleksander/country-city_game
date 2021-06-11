@@ -1,0 +1,157 @@
+[Server] New session 2021-06-10 15:29:26
+
+[Server] New session 2021-06-10 22:42:37
+[Server] Connection from ('127.0.0.1', 61376)
+[Client 127.0.0.1 - 61376] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61376] Data sent: 201 CREATED bcdae9
+[Server] Connection from ('127.0.0.1', 61377)
+[Client 127.0.0.1 - 61377] Data received: JOIN bcdae9
+[Client 127.0.0.1 - 61377] Data sent: 202 EXISTS 127.0.0.1 61376
+[Server] Connection from ('127.0.0.1', 61379)
+[Client 127.0.0.1 - 61379] Data received: GAME_START bcdae9
+[Client 127.0.0.1 - 61379] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:46:44
+[Server] Connection from ('127.0.0.1', 61386)
+[Client 127.0.0.1 - 61386] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61386] Data sent: 201 CREATED c16dfb
+[Server] Connection from ('127.0.0.1', 61389)
+[Client 127.0.0.1 - 61389] Data received: JOIN c16dfb
+[Client 127.0.0.1 - 61389] Data sent: 202 EXISTS 127.0.0.1 61386
+[Server] Connection from ('127.0.0.1', 61392)
+[Client 127.0.0.1 - 61392] Data received: GAME_START c16dfb
+[Client 127.0.0.1 - 61392] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:48:47
+[Server] Connection from ('127.0.0.1', 61396)
+[Client 127.0.0.1 - 61396] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61396] Data sent: 201 CREATED 7385eb
+[Server] Connection from ('127.0.0.1', 61399)
+[Client 127.0.0.1 - 61399] Data received: JOIN 7385eb
+[Client 127.0.0.1 - 61399] Data sent: 202 EXISTS 127.0.0.1 61396
+[Server] Connection from ('127.0.0.1', 61402)
+[Client 127.0.0.1 - 61402] Data received: GAME_START 7385eb
+[Client 127.0.0.1 - 61402] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:51:11
+
+[Server] New session 2021-06-10 22:52:01
+[Server] Connection from ('127.0.0.1', 61428)
+[Client 127.0.0.1 - 61428] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61428] Data sent: 201 CREATED cd731b
+[Server] Connection from ('127.0.0.1', 61431)
+[Client 127.0.0.1 - 61431] Data received: JOIN cd731b
+[Client 127.0.0.1 - 61431] Data sent: 202 EXISTS 127.0.0.1 61428
+[Server] Connection from ('127.0.0.1', 61433)
+[Client 127.0.0.1 - 61433] Data received: GAME_START cd731b
+[Client 127.0.0.1 - 61433] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:54:19
+[Server] Connection from ('127.0.0.1', 61438)
+[Client 127.0.0.1 - 61438] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61438] Data sent: 201 CREATED bfe363
+[Server] Connection from ('127.0.0.1', 61441)
+[Client 127.0.0.1 - 61441] Data received: JOIN bfe363
+[Client 127.0.0.1 - 61441] Data sent: 202 EXISTS 127.0.0.1 61438
+[Server] Connection from ('127.0.0.1', 61443)
+[Client 127.0.0.1 - 61443] Data received: GAME_START bfe363
+[Client 127.0.0.1 - 61443] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:56:21
+[Server] Connection from ('127.0.0.1', 61448)
+[Client 127.0.0.1 - 61448] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61448] Data sent: 201 CREATED 8cc2da
+[Server] Connection from ('127.0.0.1', 61451)
+[Client 127.0.0.1 - 61451] Data received: JOIN 8cc2da
+[Client 127.0.0.1 - 61451] Data sent: 202 EXISTS 127.0.0.1 61448
+[Server] Connection from ('127.0.0.1', 61453)
+[Client 127.0.0.1 - 61453] Data received: GAME_START 8cc2da
+[Client 127.0.0.1 - 61453] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:57:38
+[Server] Connection from ('127.0.0.1', 61456)
+[Client 127.0.0.1 - 61456] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61456] Data sent: 201 CREATED d031c8
+[Server] Connection from ('127.0.0.1', 61459)
+[Client 127.0.0.1 - 61459] Data received: JOIN d031c8
+[Client 127.0.0.1 - 61459] Data sent: 202 EXISTS 127.0.0.1 61456
+[Server] Connection from ('127.0.0.1', 61461)
+[Client 127.0.0.1 - 61461] Data received: GAME_START d031c8
+[Client 127.0.0.1 - 61461] Data sent: 200 OK
+
+[Server] New session 2021-06-10 22:59:26
+[Server] Connection from ('127.0.0.1', 61467)
+[Client 127.0.0.1 - 61467] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61467] Data sent: 201 CREATED b813d2
+[Server] Connection from ('127.0.0.1', 61470)
+[Client 127.0.0.1 - 61470] Data received: JOIN b813d2
+[Client 127.0.0.1 - 61470] Data sent: 202 EXISTS 127.0.0.1 61467
+[Server] Connection from ('127.0.0.1', 61472)
+[Client 127.0.0.1 - 61472] Data received: GAME_START b813d2
+[Client 127.0.0.1 - 61472] Data sent: 200 OK
+
+[Server] New session 2021-06-10 23:03:57
+[Server] Connection from ('127.0.0.1', 61479)
+[Client 127.0.0.1 - 61479] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61479] Data sent: 201 CREATED 931827
+
+[Server] New session 2021-06-10 23:07:35
+[Server] Connection from ('127.0.0.1', 61507)
+[Client 127.0.0.1 - 61507] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61507] Data sent: 201 CREATED 146c99
+[Server] Connection from ('127.0.0.1', 61510)
+[Client 127.0.0.1 - 61510] Data received: JOIN 146c99
+[Client 127.0.0.1 - 61510] Data sent: 202 EXISTS 127.0.0.1 61507
+
+[Server] New session 2021-06-10 23:08:49
+[Server] Connection from ('127.0.0.1', 61514)
+[Client 127.0.0.1 - 61514] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61514] Data sent: 201 CREATED b0596d
+[Server] Connection from ('127.0.0.1', 61517)
+[Client 127.0.0.1 - 61517] Data received: JOIN b0596d
+[Client 127.0.0.1 - 61517] Data sent: 202 EXISTS 127.0.0.1 61514
+[Server] Connection from ('127.0.0.1', 61520)
+[Client 127.0.0.1 - 61520] Data received: GAME_START b0596d
+[Client 127.0.0.1 - 61520] Data sent: 200 OK
+
+[Server] New session 2021-06-10 23:11:13
+[Server] Connection from ('127.0.0.1', 61523)
+[Client 127.0.0.1 - 61523] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 61523] Data sent: 201 CREATED d1c3b7
+
+[Server] New session 2021-06-11 09:45:18
+[Server] Connection from ('127.0.0.1', 63333)
+[Client 127.0.0.1 - 63333] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 63333] Data sent: 201 CREATED 90d714
+[Server] Connection from ('127.0.0.1', 63339)
+[Client 127.0.0.1 - 63339] Data received: JOIN 90d714
+[Client 127.0.0.1 - 63339] Data sent: 202 EXISTS 127.0.0.1 63333
+[Server] Connection from ('127.0.0.1', 63344)
+[Client 127.0.0.1 - 63344] Data received: GAME_START 90d714
+[Client 127.0.0.1 - 63344] Data sent: 200 OK
+
+[Server] New session 2021-06-11 09:46:30
+[Server] Connection from ('127.0.0.1', 63349)
+[Client 127.0.0.1 - 63349] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 63349] Data sent: 201 CREATED e8b2fa
+
+[Server] New session 2021-06-11 09:48:04
+[Server] Connection from ('127.0.0.1', 63359)
+[Client 127.0.0.1 - 63359] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 63359] Data sent: 201 CREATED 768a89
+
+[Server] New session 2021-06-11 09:49:23
+[Server] Connection from ('127.0.0.1', 63371)
+[Client 127.0.0.1 - 63371] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 63371] Data sent: 201 CREATED ab01e1
+
+[Server] New session 2021-06-11 09:52:50
+[Server] Connection from ('127.0.0.1', 63390)
+[Client 127.0.0.1 - 63390] Data received: CREATE_ROOM
+[Client 127.0.0.1 - 63390] Data sent: 201 CREATED e67997
+[Server] Connection from ('127.0.0.1', 63393)
+[Client 127.0.0.1 - 63393] Data received: JOIN e67997
+[Client 127.0.0.1 - 63393] Data sent: 202 EXISTS 127.0.0.1 63390
+[Server] Connection from ('127.0.0.1', 63395)
+[Client 127.0.0.1 - 63395] Data received: GAME_START e67997
+[Client 127.0.0.1 - 63395] Data sent: 200 OK
