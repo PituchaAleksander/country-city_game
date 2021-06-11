@@ -5,6 +5,7 @@ import string
 import time
 import threading
 import datetime
+import os
 from gameData import GameData
 from playerData import PlayerData
 from concurrent.futures import ThreadPoolExecutor
@@ -54,18 +55,23 @@ def host_gameplay():
         time.sleep(5)
         round_time = (datetime.datetime.now() + datetime.timedelta(seconds=21)).strftime("%Y-%m-%d %H:%M:%S")
         notify_clients("ROUND_START " + game_data.letter + " " + round_time)
+        game_data.actual_response_number = 0
         app.start_game(game_data.letter, round_time)
 
         # ================== Start wpisywania ==================
-        time.sleep(20)
+        time.sleep(game_data.round_time)
         host_player_data.categories = app.get_values()
         game_data.add_answers(host_player_data.answers_to_pickle())
 
         # ================== Zakończenie rundy ==================
         app.set_letter("-")
-        app.set_warning("Koniec rundy!", "green")
+        app.set_warning("Oczekiwanie na odpowiedzi", "blue")
         notify_clients("END_ROUND")
-        time.sleep(2)
+
+        #================== Oczekiwanie na odpowiedzi graczy ==================
+        while len(clients) != game_data.actual_response_number:
+            pass
+        app.set_warning("Koniec rundy!", "green")
 
         # ================== Liczenie wyników ==================
         game_data.calculate_results()
@@ -87,6 +93,7 @@ def host_gameplay():
             elif i == '2' or i.upper() == 'NIE':
                 app.callback()
                 notify_clients("END_GAME")
+                os._exit(0)
                 return
 
 
@@ -99,7 +106,7 @@ class HostServerProtocol(asyncio.Protocol):
     def connection_made(self, transport) -> None:
         self.transport = transport
         self.addr = transport.get_extra_info("peername")
-        #print("Connection from " + str(self.addr))
+        # print("Connection from " + str(self.addr))
         self.name = None
 
     def data_received(self, data: bytes) -> None:
@@ -108,14 +115,18 @@ class HostServerProtocol(asyncio.Protocol):
             self.name = message.split("CONNECT ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
+            game_data.actual_response_number += 1
             answers = message.split("ANSWERS ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_receiving_answers(answers))
 
+    def connection_lost(self, ex):
+        print("[SERVER-HOST]: Rozłączono {}".format(self.name))
+        clients.remove(self)
+
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
-        game_data.numberOfPlayers += 1
-        print("Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
-              str(game_data.numberOfPlayers + 1) + "\nNapisz \"START\", aby rozpocząć!")
+        print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
+              str(len(clients) + 1) + "\nNapisz \"START\", aby rozpocząć!")
         clients.append(self)
         self.transport.write(("200 OK " + host_player_data.nick + "\r\n").encode())
 
