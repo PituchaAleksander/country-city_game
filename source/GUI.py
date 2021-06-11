@@ -6,15 +6,12 @@ import threading
 
 
 class GUIApp(threading.Thread):
-    def __init__(self):
+    def __init__(self, host, nick):
         threading.Thread.__init__(self)
         self.start()
         self.created = False
-        self.created_room = False
-        self.joined_room = False
-        self.host = "Host"
-        self.password = "------"
-        self.nick = " "
+        self.host = host
+        self.nick = nick[0:20]
         self.round_time = datetime.now()
 
     def callback(self):
@@ -61,76 +58,17 @@ class GUIApp(threading.Thread):
     def set_warning(self, warning, color):
         self.warning.config(text=warning, bg=color)
 
-    def set_password(self, password):
-        self.password = password
-
-    def get_nick(self):
-        return self.nick
-
     def start_game(self, letter, round_time):
-        self.clear_fields()
         self.set_letter(letter)
         self.set_time(round_time)
         self.set_warning("Gra się rozpoczęła! ", "green")
 
-    def write_password(self, nick, widgets):
-        pass
-
-    def join_room(self, nick, widgets):
-        self.nick = nick
-        for w in widgets:
-            w.place_forget()
-        self.build_interface()
-        self.joined_room = True
-
-    def create_room(self, nick, widgets):
-        self.nick = nick
-        for w in widgets:
-            w.place_forget()
-        self.build_interface()
-        tk.Label(self.root, text="Hasło pokoju: " + self.password, font="Verdan 10").place(x=50, y=30)
-        self.round_start = tk.Button(text="Rozpocznij rundę", command=self.start_round)
-        self.round_start.place(x=535, y=52)
-        self.created_room = True
-
-    def show_button_start_round(self):
-        self.round_start.place(x=535, y=52)
-
-    def start_round(self):
-        self.round_start.place_forget()
-        return True
-
-    def build_start(self):
+    def build_interface(self):
         self.root = tk.Tk()
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
         self.root.geometry("690x230")
         self.root.resizable(False, False)
         self.root.title("Gra \"Państwa-Miasta\"")
-
-        widgets = []
-
-        title = tk.Label(self.root, text="Państwa-Miasta", font="Verdan 16")
-        title.place(x=262, y=5)
-        widgets.append(title)
-        nick1 = tk.Label(self.root, text="Witaj! Podaj swój nick: ", font="Verdan 10")
-        nick1.place(x=195, y=65)
-        widgets.append(nick1)
-        nick2 = tk.Text(self.root, width=16, height=1)
-        nick2.place(x=345, y=67)
-        widgets.append(nick2)
-        create = tk.Button(text="Załóż pokój", command=lambda: self.create_room(nick2.get('1.0', 'end').rstrip("\n"), widgets))
-        create.place(x=250, y=120)
-        widgets.append(create)
-        join = tk.Button(text="Dołącz do pokoju", command=lambda: self.join_room(nick2.get('1.0', 'end').rstrip("\n"), widgets))
-        join.place(x=350, y=120)
-        widgets.append(join)
-
-    def build_interface(self):
-        # self.root = tk.Tk()
-        # self.root.protocol("WM_DELETE_WINDOW", self.callback)
-        # self.root.geometry("690x230")
-        # self.root.resizable(False, False)
-        # self.root.title("Gra \"Państwa-Miasta\"")
 
         tk.Label(self.root, text="Pokój gracza: " + self.host, font="Verdan 16").place(x=252, y=5)
         tk.Label(self.root, text="   Witaj " + self.nick + "!", font="Verdan 10").place(x=(66-len(self.nick)*2.8), y=85)
@@ -138,15 +76,15 @@ class GUIApp(threading.Thread):
         self.score = tk.Label(self.root, text="0", font="Verdana 10")
         self.score.place(x=128, y=117)
         self.warning = tk.Label(self.root, text="Komunikat!", height=1, width=20, bg="blue")
-        self.warning.place(x=24, y=165)
+        self.warning.place(x=31, y=165)
 
-        tk.Label(self.root, text="Litera: ", font="Verdan 11").place(x=220, y=55)
+        tk.Label(self.root, text="Litera: ", font="Verdan 11").place(x=310, y=55)
         self.letter = tk.Label(self.root, text="-", font="Verdan 11")
-        self.letter.place(x=275, y=55)
+        self.letter.place(x=365, y=55)
 
-        tk.Label(self.root, text="Do końca rundy: ", font="Verdan 11").place(x=320, y=55)
+        tk.Label(self.root, text="Do końca rundy: ", font="Verdan 11").place(x=430, y=55)
         self.time = tk.Label(self.root, text="00:00", font="Verdan 11")
-        self.time.place(x=460, y=55)
+        self.time.place(x=550, y=55)
 
         tk.Label(self.root, text="Państwo: ").place(x=220, y=94)
         self.country = tk.Text(self.root, width=16, height=1)
@@ -176,11 +114,11 @@ class GUIApp(threading.Thread):
         self.created = True
 
     def run(self):
-        self.build_start()
+        self.build_interface()
         self.root.mainloop()
 
 
-app = App()
+# app = GUIApp("Host", "Nazwa gracza do 20 znaków")
 # time.sleep(1)
 # app.set_score(122)
 # app.set_letter("S")
