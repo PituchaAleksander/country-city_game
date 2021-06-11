@@ -8,7 +8,7 @@ import datetime
 from gameData import GameData
 from playerData import PlayerData
 from concurrent.futures import ThreadPoolExecutor
-from GUI import App
+from GUI import GUIApp
 
 server_host = "127.0.0.1"
 server_port = 80
@@ -43,7 +43,7 @@ def host_gameplay():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((server_host, server_port))
     server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
-    app = App(host_player_data.nick, host_player_data.nick)
+    app = GUIApp(host_player_data.nick, host_player_data.nick)
     while True:
         if app.is_created():
             break
@@ -59,7 +59,7 @@ def host_gameplay():
         # ================== Start wpisywania ==================
         time.sleep(20)
         host_player_data.categories = app.get_values()
-        game_data.addAnswers(host_player_data.answersToPickle())
+        game_data.add_answers(host_player_data.answers_to_pickle())
 
         # ================== Zakończenie rundy ==================
         app.set_letter("-")
@@ -68,17 +68,17 @@ def host_gameplay():
         time.sleep(2)
 
         # ================== Liczenie wyników ==================
-        game_data.calculateResults()
+        game_data.calculate_results()
+        host_player_data.show_answers_and_save_score(game_data.score_board_to_pickle())
         app.set_score(host_player_data.score)
-        host_player_data.showScoreAndAnswers(game_data.scoreBoardtoPickle())
 
         # ================== Wysyłanie wyników do graczy ==================
-        msg = game_data.scoreBoardtoPickle()
+        msg = game_data.score_board_to_pickle()
         notify_clients("RESULTS " + msg)
 
         # ================== Koniec/Nowa runda ==================
         while True:
-            i = input("Czy chcesz zaczac kolejna runde?\n[1] Tak\n[2] NIE\n")
+            i = input("Czy chcesz zaczac kolejna runde?\n[1] TAK\n[2] NIE\n")
             if i == '1' or i.upper() == 'TAK':
                 game_data.time_end = False
                 game_data.scoreboard.clear()
@@ -86,6 +86,7 @@ def host_gameplay():
                 break
             elif i == '2' or i.upper() == 'NIE':
                 app.callback()
+                notify_clients("END_GAME")
                 return
 
 
@@ -119,4 +120,4 @@ class HostServerProtocol(asyncio.Protocol):
         self.transport.write(("200 OK " + host_player_data.nick + "\r\n").encode())
 
     async def async_receiving_answers(self, answers):
-        await self.loop.run_in_executor(thread_pool, game_data.addAnswers, answers)
+        await self.loop.run_in_executor(thread_pool, game_data.add_answers, answers)
