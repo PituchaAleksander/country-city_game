@@ -14,18 +14,18 @@ Gra polega na podawaniu słów z różnych dziedzin rozpoczynających się na za
 
 ## Wymagania
   * Python 3.7 +
-  * Moduły: socket, asyncio, json, random, ThreadPoolExecutor (concurrent.futures)
+  * Moduły: socket, asyncio, json, tkinter, ThreadPoolExecutor (concurrent.futures)
 
 ## Użycie:
 1. Uruchomienie serwera
 ```bash
-python server.py
+python server.py <server_host> <server_port>
 ```
 2. Uruchomienie klienta
 ```bash
-python client.py
+python app.py <server_host> <server_port>
 ```
-Następnie należy postępować zgodnie z poleceniami wyświetlanymi w konsoli klienta.
+Następnie należy postępować zgodnie z poleceniami wyświetlanymi w konsoli oraz interfejsie graficznym klienta.
 
 ## Przebieg gry:
 1. Wylosowanie litery przez system gry.
@@ -34,4 +34,8 @@ Następnie należy postępować zgodnie z poleceniami wyświetlanymi w konsoli k
 4. Gra toczy się tak długo, jak tylko gracze mają na to ochotę.
 
 ## Dokumentacja:
-- <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Brak</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Dokument%20projektowy.pdf">Dokument projektowy</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Schemat%20blokowy%20aplikacji.png">Schemat blokowy aplikacji</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Struktura%20sieci.png">Struktura sieci</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20komunikacji%20serwer-klient.png">Diagram komunikacji serwer - klient</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20przebiegu%20gry.png">Diagram przebiegu gry</a>
