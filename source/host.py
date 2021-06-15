@@ -45,9 +45,15 @@ def host_gameplay():
     start_command = input("Napisz \"START\", aby rozpocząć!\n")
     while "START" not in start_command.upper():
         start_command = input("Napisz \"START\", aby rozpocząć!\n")
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect((server_host, server_port))
-    server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
+    try:
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.connect((server_host, server_port))
+        server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
+    except socket.error:
+        print("Błąd! Serwer nie odpowiada!")
+        notify_clients("END_GAME")
+        os._exit(0)
+        return
     app = GUIApp(host_player_data.nick, host_player_data.nick)
     while True:
         if app.is_created():
