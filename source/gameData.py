@@ -20,6 +20,7 @@ class GameData:
     def score_board_to_pickle(self):
         return codecs.encode(pickle.dumps(self.scoreboard), "base64").decode()
 
-    def add_answers(self, string):
+    def add_answers(self, string, nick):
         score = pickle.loads(codecs.decode(string.encode(), "base64"))
+        score.nick = nick
         self.scoreboard.append(score)
