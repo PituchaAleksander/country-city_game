@@ -7,7 +7,6 @@ class PlayerData:
     def __init__(self, nick="", score=0):
         self.nick = nick
         self.score = score
-        self.session_id = ""
         self.categories = Categories()
 
     def answers_to_pickle(self):
@@ -17,7 +16,7 @@ class PlayerData:
         scoreboard = pickle.loads(codecs.decode(string.encode(), "base64"))
         for s in scoreboard:
             print(s.__str__())
-            if s.session_id == str(hash(self.session_id)):
+            if s.nick == self.nick:
                 self.score = s.score
         print("\n")
 
