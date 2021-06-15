@@ -5,6 +5,7 @@ from GUI import GUIApp
 DATA_SIZE = 12
 player_data = PlayerData()
 round_num = 0
+session_id = ""
 
 
 def receive(s):
@@ -15,7 +16,7 @@ def receive(s):
 
 
 def client_gameplay(host):
-    global app, round_num
+    global app, round_num, session_id
     host = host.split(' ')
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((host[0], int(host[1])))
@@ -24,10 +25,10 @@ def client_gameplay(host):
         data = receive(server)
         if "OK" in data:
             print(data)
-            host_name = data.split("OK ")[1]
+            host_name = data.split("OK ")[1].split(" ")[0]
+            session_id = data.split("OK ")[1].split(" ")[0]
             print("Dołączyłeś do pokoju gracza " + host_name + "! Przejdź do interfejsu gry!")
             app = GUIApp(host_name, player_data.nick)
-
             while True:
                 data = receive(server)
                 if "NEW_PLAYER" in data:
@@ -48,7 +49,7 @@ def client_gameplay(host):
                     app.set_letter("-")
                     print("Koniec rundy " + str(round_num) + "!")
                     app.set_warning("Koniec rundy!", "green")
-                    server.sendall(("ANSWERS " + player_data.answers_to_pickle() + "\r\n").encode())
+                    server.sendall((session_id + " ANSWERS " + player_data.answers_to_pickle() + "\r\n").encode())
 
                 elif "RESULTS" in data:
                     results = data.split("RESULTS ")[1].split("\r\n")[0]
@@ -63,11 +64,19 @@ def client_gameplay(host):
                     server.close()
                     app.callback()
                     return
+                elif "BAD_SESSION" in data:
+                    print("Błąd! Wyrzucono z sesji!")
+                    server.close()
+                    app.callback()
+                    return
                 else:
                     print(data)
+        elif "NOT_OK" in data:
+            print("Błąd! Już istnieje taka nazwa użytkownika!")
+            server.close()
+            return
         else:
             print(data)
-
     except socket.error:
         print("Host opuścił pokój! Do zobaczenia następnym razem!")
         server.close()
