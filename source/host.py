@@ -6,6 +6,7 @@ import time
 import threading
 import datetime
 import os
+import uuid
 from gameData import GameData
 from playerData import PlayerData
 from concurrent.futures import ThreadPoolExecutor
@@ -108,6 +109,7 @@ def host_gameplay():
 class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
+        self.session_id = None
 
     def connection_made(self, transport) -> None:
         self.transport = transport
@@ -133,8 +135,9 @@ class HostServerProtocol(asyncio.Protocol):
         await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
         print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
               str(len(clients) + 1) + "\nNapisz \"START\", aby rozpocząć!")
+        self.session_id = uuid.uuid4()
         clients.append(self)
-        self.transport.write(("200 OK " + host_player_data.nick + "\r\n").encode())
+        self.transport.write(("OK " + str(self.session_id) + " " + host_player_data.nick + "\r\n").encode())
 
     async def async_receiving_answers(self, answers):
         await self.loop.run_in_executor(thread_pool, game_data.add_answers, answers)
