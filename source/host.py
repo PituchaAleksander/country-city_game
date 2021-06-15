@@ -28,7 +28,7 @@ def notify_clients(message):
         client.transport.write((message + "\r\n").encode())
 
 
-# ==================Uruchomienie serwera zdarzeniowego hosta==================
+# ==================Uruchomienie serwera zdarzeniowego hosta oraz logiki gry hosta==================
 def host_loop(s):
     threading.Thread(target=host_gameplay, args=()).start()
     loop = asyncio.get_event_loop()
@@ -45,13 +45,18 @@ def host_gameplay():
     start_command = input("Napisz \"START\", aby rozpocząć!\n")
     while "START" not in start_command.upper():
         start_command = input("Napisz \"START\", aby rozpocząć!\n")
+
+    # ==================Zamykanie pokoju==================
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((server_host, server_port))
     server.sendall("GAME_START {}\r\n".format(game_data.password).encode())
+
+    # ==================Oczekiwanie na uruchomienie GUI==================
     app = GUIApp(host_player_data.nick, host_player_data.nick)
     while True:
         if app.is_created():
             break
+    # ==================Główna pętla gry==================
     while True:
         # ================== Ustawienie/wysłanie litery ==================
         game_data.set_letter(random.choice(string.ascii_letters))
@@ -73,7 +78,7 @@ def host_gameplay():
         app.set_warning("Oczekiwanie na odpowiedzi...", "blue")
         notify_clients("END_ROUND")
 
-        #================== Oczekiwanie na odpowiedzi graczy ==================
+        # ================== Oczekiwanie na odpowiedzi graczy ==================
         while len(clients) != len(responses_from_client):
             pass
         app.set_warning("Wróć do konsoli!", "blue")
@@ -93,7 +98,6 @@ def host_gameplay():
         while True:
             i = input("Czy chcesz zaczac kolejna runde?\n[1] TAK\n[2] NIE\n")
             if i == '1' or i.upper() == 'TAK':
-                game_data.time_end = False
                 game_data.scoreboard.clear()
                 print("Kolejna runda się zaczęła! Wróć do interfejsu gry!")
                 break
@@ -111,12 +115,12 @@ class HostServerProtocol(asyncio.Protocol):
     def __init__(self):
         self.loop = asyncio.get_running_loop()
         self.session_id = None
+        self.name = None
 
     def connection_made(self, transport) -> None:
         self.transport = transport
-        self.addr = transport.get_extra_info("peername")
-        # print("[SERVER-HOST]: Połączono " + str(self.addr))
-        self.name = None
+        print("[SERVER-HOST]: Połączono " + str(transport.get_extra_info("peername")))
+
 
     def data_received(self, data: bytes) -> None:
         message = data.decode()
@@ -125,7 +129,6 @@ class HostServerProtocol(asyncio.Protocol):
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
             asyncio.create_task(self.async_receiving_answers(message))
-
 
     def connection_lost(self, ex):
         print("[SERVER-HOST]: Rozłączono {}".format(self.name))

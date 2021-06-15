@@ -2,10 +2,11 @@ import socket
 from playerData import PlayerData
 from GUI import GUIApp
 
-DATA_SIZE = 12
 player_data = PlayerData()
 round_num = 0
 session_id = ""
+
+DATA_SIZE = 12
 
 
 def receive(s):
@@ -16,7 +17,7 @@ def receive(s):
 
 
 def client_gameplay(host):
-    global app, round_num, session_id
+    global round_num, session_id
     host = host.split(' ')
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((host[0], int(host[1])))

@@ -2,9 +2,10 @@ import socket
 from client import client_gameplay, player_data
 from host import host_loop, host_player_data, game_data
 
-DATA_SIZE = 12
 server_host = "127.0.0.1"
 server_port = 80
+
+DATA_SIZE = 12
 
 
 def receive(s):

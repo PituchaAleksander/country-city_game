@@ -1,7 +1,7 @@
 from datetime import datetime
 import tkinter as tk
 from categories import Categories
-import time
+import os
 import threading
 
 
@@ -16,6 +16,7 @@ class GUIApp(threading.Thread):
 
     def callback(self):
         self.root.quit()
+        os._exit(0)
 
     def get_values(self):
         values = Categories(state=self.country.get('1.0', 'end').rstrip("\n"),
