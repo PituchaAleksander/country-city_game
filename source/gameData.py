@@ -22,4 +22,5 @@ class GameData:
 
     def add_answers(self, string):
         score = pickle.loads(codecs.decode(string.encode(), "base64"))
+        score.session_id = str(hash(score.session_id))
         self.scoreboard.append(score)
