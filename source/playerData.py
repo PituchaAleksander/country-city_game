@@ -18,7 +18,7 @@ class PlayerData:
             print(s.__str__())
             if s.nick == self.nick:
                 self.score = s.score
-        print("\n")
+        print("")
 
     def __str__(self) -> str:
         return "Nick: " + self.nick + " Wynik: " + str(self.score) + self.categories.__str__()

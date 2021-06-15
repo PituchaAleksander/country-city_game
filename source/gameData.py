@@ -7,7 +7,7 @@ class GameData:
         self.password = ""          # room password
         self.letter = ''
         self.scoreboard = []
-        self.round_time = 20
+        self.round_time = 40
 
     def set_letter(self, letter):
         self.letter = str(letter).upper()
