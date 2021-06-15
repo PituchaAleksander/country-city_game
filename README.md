@@ -14,16 +14,16 @@ Gra polega na podawaniu słów z różnych dziedzin rozpoczynających się na za
 
 ## Wymagania
   * Python 3.7 +
-  * Moduły: socket, asyncio, json, tkinter, ThreadPoolExecutor (concurrent.futures)
+  * Moduły: socket, asyncio, pickle, tkinter, ThreadPoolExecutor (concurrent.futures)
 
 ## Użycie:
 1. Uruchomienie serwera
 ```bash
-python server.py <server_host> <server_port>
+python server.py
 ```
 2. Uruchomienie klienta
 ```bash
-python app.py <server_host> <server_port>
+python app.py
 ```
 Następnie należy postępować zgodnie z poleceniami wyświetlanymi w konsoli oraz interfejsie graficznym klienta.
 
@@ -35,7 +35,8 @@ Następnie należy postępować zgodnie z poleceniami wyświetlanymi w konsoli o
 
 ## Dokumentacja:
 - <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Dokument%20projektowy.pdf">Dokument projektowy</a>
+### Inne dokumenty:
 - <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Schemat%20blokowy%20aplikacji.png">Schemat blokowy aplikacji</a>
 - <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Struktura%20sieci.png">Struktura sieci</a>
-- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20komunikacji%20serwer-klient.png">Diagram komunikacji serwer - klient</a>
-- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20przebiegu%20gry.png">Diagram przebiegu gry</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20komunikacji%20serwer-klient.png">Diagram komunikacji serwer-klient</a>
+- <a href="https://github.com/PituchaAleksander/country-city_game/blob/main/docs/Diagram%20komunikacji%20host-klient.png">Diagram komunikacji host-klient</a>
