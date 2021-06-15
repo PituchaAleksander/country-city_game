@@ -24,13 +24,13 @@ def client_gameplay(host):
     try:
         data = receive(server)
         if "OK" in data:
-            print(data)
-            host_name = data.split("OK ")[1].split(" ")[0]
+            host_name = data.split("OK ")[1].split(" ")[1]
             session_id = data.split("OK ")[1].split(" ")[0]
             print("Dołączyłeś do pokoju gracza " + host_name + "! Przejdź do interfejsu gry!")
             app = GUIApp(host_name, player_data.nick)
             while True:
                 data = receive(server)
+                print("SERVER TO MOWI", data)
                 if "NEW_PLAYER" in data:
                     print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
 

@@ -18,6 +18,7 @@ server_port = 80
 game_data = GameData()
 host_player_data = PlayerData()
 clients = []
+responses_from_client = {}
 thread_pool = ThreadPoolExecutor()
 round_num = 0
 
@@ -59,13 +60,13 @@ def host_gameplay():
         print("\nLitera: " + game_data.letter)
         round_time = (datetime.datetime.now() + datetime.timedelta(seconds=21)).strftime("%Y-%m-%d %H:%M:%S")
         notify_clients("ROUND_START " + game_data.letter + " " + round_time)
-        game_data.actual_response_number = 0
+        responses_from_client.clear()
         app.start_game(game_data.letter, round_time)
 
         # ================== Start wpisywania ==================
         time.sleep(game_data.round_time)
         host_player_data.categories = app.get_values()
-        game_data.add_answers(host_player_data.answers_to_pickle())
+        game_data.add_answers(host_player_data.answers_to_pickle(), host_player_data.nick)
 
         # ================== Zakończenie rundy ==================
         app.set_letter("-")
@@ -73,7 +74,7 @@ def host_gameplay():
         notify_clients("END_ROUND")
 
         #================== Oczekiwanie na odpowiedzi graczy ==================
-        while len(clients) != game_data.actual_response_number:
+        while len(clients) != len(responses_from_client):
             pass
         app.set_warning("Wróć do konsoli!", "blue")
 
@@ -123,9 +124,8 @@ class HostServerProtocol(asyncio.Protocol):
             self.name = message.split("CONNECT ")[1].split("\r\n")[0]
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
-            game_data.actual_response_number += 1
-            answers = message.split("ANSWERS ")[1].split("\r\n")[0]
-            asyncio.create_task(self.async_receiving_answers(answers))
+            asyncio.create_task(self.async_receiving_answers(message))
+
 
     def connection_lost(self, ex):
         print("[SERVER-HOST]: Rozłączono {}".format(self.name))
@@ -139,5 +139,13 @@ class HostServerProtocol(asyncio.Protocol):
         clients.append(self)
         self.transport.write(("OK " + str(self.session_id) + " " + host_player_data.nick + "\r\n").encode())
 
-    async def async_receiving_answers(self, answers):
-        await self.loop.run_in_executor(thread_pool, game_data.add_answers, answers)
+    async def async_receiving_answers(self, message):
+        if message.split(" ")[0] == str(self.session_id):
+            await self.loop.run_in_executor(thread_pool, self.answer_service, message)
+        else:
+            self.transport.write("BAD_SESSION\r\n".encode())
+
+    def answer_service(self, message):
+        if responses_from_client.get(self.session_id) is None:
+            responses_from_client[self.session_id] = "ok"
+            game_data.add_answers(message.split("ANSWERS ")[1].split("\r\n")[0], self.name)
