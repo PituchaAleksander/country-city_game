@@ -30,19 +30,16 @@ def client_gameplay(host):
             app = GUIApp(host_name, player_data.nick)
             while True:
                 data = receive(server)
-                print("SERVER TO MOWI", data)
                 if "NEW_PLAYER" in data:
                     print("Gracz " + data.split("NEW_PLAYER ")[1].split("\r\n")[0] + " - dołączył do pokoju!")
-
                 elif "ROUND_START" in data:
                     while True:
                         if app.is_created():
                             break
                     curr_letter = data.split("ROUND_START ")[1].split(" ")[0]
                     round_time = data.split("ROUND_START ")[1].split(" ")[1] + " " + data.split("ROUND_START ")[1].split(" ")[2]
-                    print("\nLitera: " + curr_letter)
+                    print("Gra się rozpoczęła! Przełącz się na interfejs gry!\nLitera: " + curr_letter)
                     app.start_game(curr_letter, round_time)
-
                 elif "END_ROUND" in data:
                     round_num += 1
                     player_data.categories = app.get_values()
@@ -50,7 +47,6 @@ def client_gameplay(host):
                     print("Koniec rundy " + str(round_num) + "!")
                     app.set_warning("Koniec rundy!", "green")
                     server.sendall((session_id + " ANSWERS " + player_data.answers_to_pickle() + "\r\n").encode())
-
                 elif "RESULTS" in data:
                     results = data.split("RESULTS ")[1].split("\r\n")[0]
                     print("Wynik: ")
@@ -58,7 +54,6 @@ def client_gameplay(host):
                     app.set_score(player_data.score)
                     app.set_warning("Oczekiwanie na hosta!", "blue")
                     print("Oczekiwanie na rozpoczęcie kolejnej rundy przez hosta!")
-
                 elif "END_GAME" in data:
                     print("Host opuścił pokój! Do zobaczenia następnym razem!")
                     server.close()

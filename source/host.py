@@ -58,7 +58,7 @@ def host_gameplay():
         print("Przełącz się na interfejs gry. Runda zaraz się rozpocznie!")
         time.sleep(5)
         print("\nLitera: " + game_data.letter)
-        round_time = (datetime.datetime.now() + datetime.timedelta(seconds=21)).strftime("%Y-%m-%d %H:%M:%S")
+        round_time = (datetime.datetime.now() + datetime.timedelta(seconds=(game_data.round_time + 1))).strftime("%Y-%m-%d %H:%M:%S")
         notify_clients("ROUND_START " + game_data.letter + " " + round_time)
         responses_from_client.clear()
         app.start_game(game_data.letter, round_time)
@@ -125,7 +125,6 @@ class HostServerProtocol(asyncio.Protocol):
             asyncio.create_task(self.async_connect_client())
         elif "ANSWERS" in message:
             asyncio.create_task(self.async_receiving_answers(message))
-
 
     def connection_lost(self, ex):
         print("[SERVER-HOST]: Rozłączono {}".format(self.name))

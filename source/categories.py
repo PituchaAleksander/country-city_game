@@ -14,7 +14,7 @@ class Categories:
                " Roslina: " + self.plant +\
                " Zwierze: " + self.animal +\
                " Kolor: " + self.color +\
-               " Imie: "+self.name
+               " Imie: " + self.name
 
     def calculate_score(self, character, score):
         if len(self.state) > 0 and self.state[0].lower() == character.lower():
