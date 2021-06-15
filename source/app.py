@@ -16,8 +16,8 @@ def receive(s):
 
 
 def start_app():
-    host_player_data.nick = player_data.nick = input("Podaj swój nick: ")
     try:
+        host_player_data.nick = player_data.nick = input("Podaj swój nick: ")
         while True:
             i = input("---------------\nMenu:\n[1] Stwórz gre\n[2] Dołącz do gry\nPodaj numer: ")
 
@@ -47,6 +47,9 @@ def start_app():
                     print("Błąd! Pokój nie istnieje!\n")
     except socket.error:
         print("Błąd! Serwer nie odpowiada!")
+        return
+    except KeyboardInterrupt:
+        print("Do zobaczenia!")
         return
 
 

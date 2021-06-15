@@ -17,12 +17,12 @@ def receive(s):
 
 
 def client_gameplay(host):
-    global round_num, session_id
+    global app, round_num, session_id
     host = host.split(' ')
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect((host[0], int(host[1])))
-    server.sendall(("CONNECT " + player_data.nick + "\r\n").encode())
     try:
+        server.connect((host[0], int(host[1])))
+        server.sendall(("CONNECT " + player_data.nick + "\r\n").encode())
         data = receive(server)
         if "OK" in data:
             host_name = data.split("OK ")[1].split(" ")[1]
@@ -75,6 +75,11 @@ def client_gameplay(host):
             print(data)
     except socket.error:
         print("Host opuścił pokój! Do zobaczenia następnym razem!")
+        server.close()
+        app.callback()
+        return
+    except KeyboardInterrupt:
+        print("Do zobaczenia!")
         server.close()
         app.callback()
         return
