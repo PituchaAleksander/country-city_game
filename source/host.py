@@ -148,21 +148,39 @@ class HostServerProtocol(asyncio.Protocol):
         print("[SERVER-HOST]: Rozłączono {}".format(self.name))
         clients.remove(self)
 
+    def answer_service(self, message):
+        if responses_from_client.get(self.session_id) is None:
+            responses_from_client[self.session_id] = "ok"
+            game_data.add_answers(message.split("ANSWERS ")[1].split("\r\n")[0], self.name)
+
+    def check_client(self):
+        exists = False
+        for client in clients:
+            if client.name == self.name:
+                exists = True
+                break
+
+        if host_player_data.nick == self.name:
+            exists = True
+
+        if exists:
+            clients.append(self)
+            self.name = "duplikat " + self.name
+            self.transport.write(("NOT_OK\r\n").encode())
+        else:
+            threading.Thread(target=notify_clients, args=("NEW_PLAYER " + self.name, )).start()
+            print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
+                  str(len(clients) + 1) + "\nNapisz \"START\", aby rozpocząć!")
+            self.session_id = uuid.uuid4()
+            clients.append(self)
+            self.transport.write(("OK " + str(self.session_id) + " " + host_player_data.nick + "\r\n").encode())
+
     async def async_connect_client(self):
-        await self.loop.run_in_executor(thread_pool, notify_clients, "NEW_PLAYER " + self.name)
-        print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
-              str(len(clients) + 1) + "\nNapisz \"START\", aby rozpocząć!")
-        self.session_id = uuid.uuid4()
-        clients.append(self)
-        self.transport.write(("OK " + str(self.session_id) + " " + host_player_data.nick + "\r\n").encode())
+        await self.loop.run_in_executor(thread_pool, self.check_client)
+
 
     async def async_receiving_answers(self, message):
         if message.split(" ")[0] == str(self.session_id):
             await self.loop.run_in_executor(thread_pool, self.answer_service, message)
         else:
             self.transport.write("BAD_SESSION\r\n".encode())
-
-    def answer_service(self, message):
-        if responses_from_client.get(self.session_id) is None:
-            responses_from_client[self.session_id] = "ok"
-            game_data.add_answers(message.split("ANSWERS ")[1].split("\r\n")[0], self.name)

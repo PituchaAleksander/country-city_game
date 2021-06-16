@@ -24,7 +24,11 @@ def client_gameplay(host):
         server.connect((host[0], int(host[1])))
         server.sendall(("CONNECT " + player_data.nick + "\r\n").encode())
         data = receive(server)
-        if "OK" in data:
+        if "NOT_OK" in data:
+            print("Błąd! Już istnieje taka nazwa użytkownika!")
+            server.close()
+            return
+        elif "OK" in data:
             host_name = data.split("OK ")[1].split(" ")[1]
             session_id = data.split("OK ")[1].split(" ")[0]
             print("Dołączyłeś do pokoju gracza " + host_name + "! Przejdź do interfejsu gry!")
@@ -67,10 +71,6 @@ def client_gameplay(host):
                     return
                 else:
                     print(data)
-        elif "NOT_OK" in data:
-            print("Błąd! Już istnieje taka nazwa użytkownika!")
-            server.close()
-            return
         else:
             print(data)
     except socket.error:
