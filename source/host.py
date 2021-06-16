@@ -166,7 +166,7 @@ class HostServerProtocol(asyncio.Protocol):
         if exists:
             clients.append(self)
             self.name = "duplikat " + self.name
-            self.transport.write(("NOT_OK\r\n").encode())
+            self.transport.write("NOT_OK\r\n".encode())
         else:
             threading.Thread(target=notify_clients, args=("NEW_PLAYER " + self.name, )).start()
             print("[SERVER-HOST]: Gracz " + self.name + " dołączył! Liczba graczy w pokoju: " +
@@ -177,7 +177,6 @@ class HostServerProtocol(asyncio.Protocol):
 
     async def async_connect_client(self):
         await self.loop.run_in_executor(thread_pool, self.check_client)
-
 
     async def async_receiving_answers(self, message):
         if message.split(" ")[0] == str(self.session_id):
